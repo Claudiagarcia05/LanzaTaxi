@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Admin - LanzaTaxi</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+<body class="dashboard-body">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-taxi"></i>
+            <span>LanzaTaxi Admin</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="#" class="nav-item active" onclick="mostrarSeccion('dashboard')">
+                <i class="fas fa-chart-line"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="#" class="nav-item" onclick="mostrarSeccion('viajes')">
+                <i class="fas fa-car"></i>
+                <span>Viajes</span>
+            </a>
+            <a href="#" class="nav-item" onclick="mostrarSeccion('taxistas')">
+                <i class="fas fa-users"></i>
+                <span>Taxistas</span>
+            </a>
+            <a href="#" class="nav-item" onclick="mostrarSeccion('clientes')">
+                <i class="fas fa-user-friends"></i>
+                <span>Clientes</span>
+            </a>
+            <a href="#" class="nav-item" onclick="mostrarSeccion('tarifas')">
+                <i class="fas fa-euro-sign"></i>
+                <span>Tarifas</span>
+            </a>
+            <a href="#" class="nav-item" onclick="mostrarSeccion('mapa')">
+                <i class="fas fa-map"></i>
+                <span>Mapa en Vivo</span>
+            </a>
+            <a href="#" class="nav-item" onclick="cerrarSesion()">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Cerrar Sesión</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <h1 id="headerTitle">Dashboard</h1>
+            <div class="user-info">
+                <i class="fas fa-user-shield"></i>
+                <span id="userName"></span>
+            </div>
+        </div>
+
+        <!-- Sección: Dashboard -->
+        <section id="seccion-dashboard" class="seccion active">
+            <!-- Estadísticas principales -->
+            <div class="grid-4 mb-3">
+                <div class="stat-card">
+                    <div class="stat-icon primary">
+                        <i class="fas fa-car"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-label">Viajes Hoy</div>
+                        <div class="stat-value" id="statViajesHoy">0</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon success">
+                        <i class="fas fa-taxi"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-label">Taxistas Activos</div>
+                        <div class="stat-value" id="statTaxistasActivos">0</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon info">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-label">Total Clientes</div>
+                        <div class="stat-value" id="statTotalClientes">0</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon danger">
+                        <i class="fas fa-euro-sign"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-label">Ingresos Hoy</div>
+                        <div class="stat-value" id="statIngresosHoy">€0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gráficos -->
+            <div class="grid-2 mb-3">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-chart-bar"></i> Viajes por Hora (24h)
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="chartViajesPorHora"></canvas>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-chart-pie"></i> Viajes por Municipio
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="chartViajesPorMunicipio"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Taxistas -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-trophy"></i> Top 5 Taxistas
+                </div>
+                <div id="topTaxistas"></div>
+            </div>
+        </section>
+
+        <!-- Sección: Viajes -->
+        <section id="seccion-viajes" class="seccion">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-car"></i> Todos los Viajes
+                    <div style="float: right;">
+                        <select id="filtroEstado" onchange="cargarViajes()">
+                            <option value="">Todos los estados</option>
+                            <option value="pendiente">Pendientes</option>
+                            <option value="aceptado">Aceptados</option>
+                            <option value="en_curso">En Curso</option>
+                            <option value="finalizado">Finalizados</option>
+                            <option value="cancelado">Cancelados</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="listaViajes">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección: Taxistas -->
+        <section id="seccion-taxistas" class="seccion">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-users"></i> Gestión de Taxistas
+                    <button class="btn btn-primary btn-sm" style="float: right;" onclick="abrirModalTaxista()">
+                        <i class="fas fa-plus"></i> Nuevo Taxista
+                    </button>
+                </div>
+                <div id="listaTaxistas">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección: Clientes -->
+        <section id="seccion-clientes" class="seccion">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-user-friends"></i> Clientes Registrados
+                </div>
+                <div id="listaClientes">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección: Tarifas -->
+        <section id="seccion-tarifas" class="seccion">
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-euro-sign"></i> Tarifa 1 - Urbana
+                    </div>
+                    <div id="tarifaUrbana"></div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-euro-sign"></i> Tarifa 2 - Interurbana
+                    </div>
+                    <div id="tarifaInterurbana"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección: Mapa -->
+        <section id="seccion-mapa" class="seccion">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-map"></i> Ubicación de Taxistas en Tiempo Real
+                </div>
+                <div id="map" style="height: 600px; border-radius: 10px;"></div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Modal Nuevo Taxista -->
+    <div id="modalTaxista" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="cerrarModalTaxista()">&times;</span>
+            <h2>Nuevo Taxista</h2>
+            <form onsubmit="crearTaxista(event)">
+                <div class="form-group">
+                    <label>Nombre Completo</label>
+                    <input type="text" id="taxistaNombre" required>
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="taxistaEmail" required>
+                </div>
+                <div class="form-group">
+                    <label>Teléfono</label>
+                    <input type="tel" id="taxistaTelefono" required>
+                </div>
+                <div class="form-group">
+                    <label>Contraseña</label>
+                    <input type="password" id="taxistaPassword" required>
+                </div>
+                <div class="form-group">
+                    <label>Licencia</label>
+                    <input type="text" id="taxistaLicencia" required>
+                </div>
+                <div class="form-group">
+                    <label>Municipio</label>
+                    <select id="taxistaMunicipio" required>
+                        <option value="Arrecife">Arrecife</option>
+                        <option value="Teguise">Teguise</option>
+                        <option value="Tías">Tías</option>
+                        <option value="San Bartolomé">San Bartolomé</option>
+                        <option value="Tinajo">Tinajo</option>
+                        <option value="Haría">Haría</option>
+                        <option value="Yaiza">Yaiza</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Matrícula</label>
+                    <input type="text" id="taxistaMatricula" required>
+                </div>
+                <div class="form-group">
+                    <label>Modelo Vehículo</label>
+                    <input type="text" id="taxistaModelo" required>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">
+                    <i class="fas fa-save"></i> Crear Taxista
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Taxista - LanzaTaxi</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+<body class="dashboard-body">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <i class="fas fa-taxi"></i>
+            <span>LanzaTaxi</span>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="#" class="nav-item active" onclick="mostrarSeccion('inicio')">
+                <i class="fas fa-home"></i>
+                <span>Inicio</span>
+            </a>
+            <a href="#" class="nav-item" onclick="mostrarSeccion('solicitudes')">
+                <i class="fas fa-bell"></i>
+                <span>Solicitudes</span>
+            </a>
+            <a href="#" class="nav-item" onclick="mostrarSeccion('viajes')">
+                <i class="fas fa-history"></i>
+                <span>Mis Viajes</span>
+            </a>
+            <a href="#" class="nav-item" onclick="mostrarSeccion('estadisticas')">
+                <i class="fas fa-chart-line"></i>
+                <span>Estadísticas</span>
+            </a>
+            <a href="#" class="nav-item" onclick="cerrarSesion()">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Cerrar Sesión</span>
+            </a>
+        </nav>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header -->
+        <div class="dashboard-header">
+            <h1 id="headerTitle">Panel de Control</h1>
+            <div class="user-info">
+                <i class="fas fa-user-circle"></i>
+                <span id="userName"></span>
+            </div>
+        </div>
+
+        <!-- Sección: Inicio -->
+        <section id="seccion-inicio" class="seccion active">
+            <!-- Control de disponibilidad -->
+            <div class="card mb-3">
+                <div class="card-header">
+                    <i class="fas fa-toggle-on"></i> Estado de Disponibilidad
+                </div>
+                <div style="padding: 2rem; text-align: center;">
+                    <h3 id="estadoActual">Cargando...</h3>
+                    <p class="text-muted mb-3">Cambia tu estado para recibir solicitudes de viaje</p>
+                    <div style="display: flex; justify-content: center; gap: 1rem;">
+                        <button class="btn btn-success" onclick="cambiarEstado('libre')">
+                            <i class="fas fa-check-circle"></i> Disponible
+                        </button>
+                        <button class="btn btn-danger" onclick="cambiarEstado('ocupado')">
+                            <i class="fas fa-times-circle"></i> No Disponible
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Estadísticas rápidas -->
+            <div class="grid-4 mb-3">
+                <div class="stat-card">
+                    <div class="stat-icon success">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-label">Viajes Hoy</div>
+                        <div class="stat-value" id="statViajesHoy">0</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon primary">
+                        <i class="fas fa-euro-sign"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-label">Ingresos Hoy</div>
+                        <div class="stat-value" id="statIngresosHoy">€0</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon info">
+                        <i class="fas fa-car"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-label">Total Viajes</div>
+                        <div class="stat-value" id="statTotalViajes">0</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon danger">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-label">Valoración</div>
+                        <div class="stat-value" id="statValoracion">-</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Viaje activo -->
+            <div id="viajeActivoCard" class="card" style="display: none;">
+                <div class="card-header">
+                    <i class="fas fa-car"></i> Viaje en Curso
+                </div>
+                <div id="viajeActivoContenido"></div>
+            </div>
+
+            <!-- Mapa de ubicación -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-map"></i> Tu Ubicación
+                </div>
+                <div id="map" style="height: 400px; border-radius: 10px;"></div>
+            </div>
+        </section>
+
+        <!-- Sección: Solicitudes -->
+        <section id="seccion-solicitudes" class="seccion">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-bell"></i> Solicitudes Pendientes
+                </div>
+                <div id="listaSolicitudes">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección: Mis Viajes -->
+        <section id="seccion-viajes" class="seccion">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-history"></i> Historial de Viajes
+                </div>
+                <div id="listaViajes">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección: Estadísticas -->
+        <section id="seccion-estadisticas" class="seccion">
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-chart-line"></i> Mis Estadísticas
+                </div>
+                <div id="contenedorEstadisticas">
+                    <div class="spinner"></div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
+    <script src="/js/auth.js"></script>
+    <script src="/js/taxista.js"></script>
+</body>
+</html>
