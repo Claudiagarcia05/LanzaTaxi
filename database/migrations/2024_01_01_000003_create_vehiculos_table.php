@@ -10,7 +10,6 @@ return new class extends Migration
     {
         Schema::create('vehiculos', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('taxista_id')->constrained('taxistas')->onDelete('cascade');
             $table->string('marca');
             $table->string('modelo');
             $table->string('matricula')->unique();
@@ -21,7 +20,6 @@ return new class extends Migration
             $table->date('itv_until')->nullable();
             $table->timestamps();
             
-            $table->index('taxista_id');
             $table->index('matricula');
         });
     }
