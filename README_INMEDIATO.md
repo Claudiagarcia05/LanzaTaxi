@@ -1,5 +1,6 @@
 # 🎉 ¡LANZATAXI ESTÁ 100% COMPLETADO Y LISTO!
 
+<<<<<<< HEAD
 ## ⚡ INICIO RÁPIDO (3 PASOS)
 
 ### Paso 1️⃣: Asegúrate que XAMPP está ejecutándose
@@ -17,6 +18,39 @@ http://localhost/LanzaTaxi/
 ### Paso 3️⃣: ¡Listo! 🚕
 Tienes 4 páginas completas disponibles:
 - **Landing Page** → Información y login
+=======
+## ⚡ INICIO RÁPIDO (4 PASOS)
+
+### Paso 1️⃣: Instala las dependencias de Node.js
+```bash
+cd /var/www/html/LanzaTaxi
+npm install
+```
+
+### Paso 2️⃣: Inicia el servidor backend
+```bash
+npm start
+```
+Verás este mensaje:
+```
+🚖 ========================================
+   LANZATAXI - Sistema de Gestión de Taxis
+   ========================================
+   
+   🌐 Servidor: http://localhost:3000
+   📊 Estado: Activo
+```
+
+### Paso 3️⃣: Abre tu navegador
+Copia y pega esta URL:
+```
+http://localhost:3000
+```
+
+### Paso 4️⃣: ¡Inicia sesión! 🚕
+Usa las credenciales de prueba para acceder:
+- **Landing Page** → Click en "Iniciar sesión"
+>>>>>>> origin/master
 - **Panel Cliente** → Solicitar taxi
 - **Panel Taxista** → Gestionar servicios  
 - **Panel Admin** → Ver estadísticas
@@ -74,12 +108,25 @@ Municipios donde operamos (7)
 CTA final + Footer
 ```
 
+<<<<<<< HEAD
 **Login:** Click en "Iniciar sesión" → Modal con tabs login/registro
+=======
+**Login:** 
+1. Click en "Iniciar sesión"
+2. En el modal, usa las credenciales de prueba:
+   - Email: `cliente@test.com`
+   - Password: `123456`
+3. Automáticamente serás redirigido al panel correspondiente
+>>>>>>> origin/master
 
 ---
 
 ### 👤 CLIENTE.HTML
+<<<<<<< HEAD
 **URL Directa:** `http://localhost/LanzaTaxi/public/cliente.html`
+=======
+**URL Directa:** `http://localhost:3000/cliente.html`
+>>>>>>> origin/master
 
 ```
 Sidebar izquierda (navegación)
@@ -97,7 +144,11 @@ Historial de viajes
 Mi Perfil
 ├─ Avatar y datos personales
 └─ Editar información
+<<<<<<< HEAD
 ```
+=======
+```:3000
+>>>>>>> origin/master
 
 ---
 
@@ -127,7 +178,11 @@ Ganancias (estadísticas)
 ---
 
 ### 👑 ADMIN.HTML
+<<<<<<< HEAD
 **URL Directa:** `http://localhost/LanzaTaxi/public/admin.html`
+=======
+**URL Directa:** `http://localhost:3000/admin.html`
+>>>>>>> origin/master
 
 ```
 Dashboard
@@ -176,6 +231,15 @@ Menú lateral:
 
 ## 🔧 TROUBLESHOOTING
 
+<<<<<<< HEAD
+=======
+### ❓ ¿El login no funciona?
+**Solución:** 
+1. Verifica que el servidor Node.js esté corriendo (`npm start`)
+2. Asegúrate de estar en `http://localhost:3000` (no en `http://localhost/LanzaTaxi`)
+3. Usa las credenciales exactas mostradas arriba
+
+>>>>>>> origin/master
 ### ❓ ¿Veo solo el navbar y logo grande?
 **Solución:** Haz `Ctrl + Shift + R` (hard refresh)
 
@@ -185,11 +249,19 @@ Menú lateral:
 ### ❓ ¿El modal no abre?
 **Solución:** Abre DevTools (F12) y revisa la consola por errores
 
+<<<<<<< HEAD
 ### ❓ ¿El mapa no aparece?
 **Solución:** Leaflet necesita CDN. Verifica conexión a internet
 
 ### ❓ ¿Los gráficos en admin no salen?
 **Solución:** Chart.js necesita CDN. Verifica conexión.
+=======
+### ❓ ¿El servidor no inicia?
+**Errores comunes:**
+- `Cannot find module 'express'` → Ejecuta `npm install`
+- `Port 3000 already in use` → Algún proceso ya usa el puerto 3000. Ciérralo o cambia el puerto en `.env`
+- `JWT_SECRET not defined` → Ya está configurado en `.env`, verifica que exista el archivota CDN. Verifica conexión.
+>>>>>>> origin/master
 
 ### ❓ ¿Qué necesito para backend después?
 **Respuesta:** Node.js + Express + Base de datos:
@@ -232,6 +304,7 @@ Menú lateral:
 ✅ KPIs dashboard  
 ✅ Gráficos demanda  
 ✅ Gestión usuarios  
+<<<<<<< HEAD
 ✅ Gestión taxistas  
 ✅ Monitor viajes  
 ✅ Editor tarifas  
@@ -248,6 +321,28 @@ Si quieres agregar backend:
    ```
 
 2. **Configura database.js** con tu BD
+=======
+✅ GestSISTEMA BACKEND COMPLETO
+
+✅ **Backend Node.js ya está funcionando:**
+
+- ✅ Servidor Express en puerto 3000
+- ✅ Base de datos SQLite con usuarios de prueba
+- ✅ Sistema de autenticación JWT
+- ✅ WebSockets para tiempo real
+- ✅ Endpoints REST completos
+- ✅ 3 usuarios de prueba pre-cargados
+
+**Archivos backend activos:**
+- `server.js` → Servidor principal
+- `database.js` → Base de datos SQLite
+- `routes/auth.js` → Login/registro
+- `routes/viajes.js` → Gestión de viajes
+- `routes/taxistas.js` → Gestión de taxistas
+- `routes/admin.js` → Panel administrativo
+- `routes/tarifas.js` → Gestión de tarifas
+- `public/js/auth.js` → Cliente de autenticación
+>>>>>>> origin/master
 
 3. **Crea endpoints REST** en `routes/`
 
@@ -275,6 +370,7 @@ Si quieres agregar backend:
 - `public/css/styles.css` → Todos los componentes documentados
 - Cada HTML tiene comentarios explicativos
 
+<<<<<<< HEAD
 **Problema:** Modificar colores
 **Solución:** Busca `#FFD700`, `#0068CC`, `#1A1A1A` en CSS
 
@@ -284,6 +380,30 @@ Si quieres agregar backend:
 ---
 
 ## ✨ ¡AHORA PRUEBA TU APLICACIÓN!
+=======
+**PrComandos esenciales:
+
+**Iniciar servidor:**
+```bash
+npm start
+```
+
+**Iniciar servidor con auto-recarga (desarrollo):**
+```bash
+npm run dev
+```
+
+**Compilar CSS de Tailwind:**
+```bash
+npm run build:css
+```
+
+### Ahora abre tu navegador:
+1. Ve a `http://localhost:3000`
+2. Click en "Iniciar sesión"
+3. Usa: `cliente@test.com` / `123456`
+4# ✨ ¡AHORA PRUEBA TU APLICACIÓN!
+>>>>>>> origin/master
 
 ### Próximo comando en terminal (opcional):
 ```bash

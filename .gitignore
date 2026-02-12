@@ -3,3 +3,13 @@ node_modules/
 *.db
 *.log
 .DS_Store
+
+# CSS compilado (generado)
+public/css/tailwind.css
+
+# Jest coverage
+coverage/
+
+# PHP/Laravel (proyecto ya usa Node.js, pero prevenir cachés)
+.phpunit.cache/
+vendor/

@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+<<<<<<< HEAD
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
@@ -10,6 +11,11 @@ class Viaje extends Model
 {
     protected $table = 'viajes';
 
+=======
+
+class Viaje extends Model
+{
+>>>>>>> origin/master
     protected $fillable = [
         'cliente_id',
         'taxista_id',
@@ -19,6 +25,7 @@ class Viaje extends Model
         'destino_lat',
         'destino_lng',
         'destino_direccion',
+<<<<<<< HEAD
         'distancia_km',
         'tiempo_estimado',
         'precio',
@@ -182,5 +189,49 @@ class Viaje extends Model
         return self::where('taxista_id', $taxistaId)
             ->whereIn('estado', ['aceptado', 'en_curso'])
             ->get();
+=======
+        'distancia',
+        'precio_estimado',
+        'precio_final',
+        'estado',
+        'tipo_tarifa',
+        'suplementos',
+        'fecha_solicitud',
+        'fecha_aceptacion',
+        'fecha_inicio',
+        'fecha_fin',
+        'valoracion',
+        'comentario',
+    ];
+
+    protected $casts = [
+        'origen_lat' => 'decimal:7',
+        'origen_lng' => 'decimal:7',
+        'destino_lat' => 'decimal:7',
+        'destino_lng' => 'decimal:7',
+        'distancia' => 'decimal:2',
+        'precio_estimado' => 'decimal:2',
+        'precio_final' => 'decimal:2',
+        'fecha_solicitud' => 'datetime',
+        'fecha_aceptacion' => 'datetime',
+        'fecha_inicio' => 'datetime',
+        'fecha_fin' => 'datetime',
+    ];
+
+    // Relaciones
+    public function cliente()
+    {
+        return $this->belongsTo(User::class, 'cliente_id');
+    }
+
+    public function taxista()
+    {
+        return $this->belongsTo(Taxista::class);
+    }
+
+    public function incidencias()
+    {
+        return $this->hasMany(Incidencia::class);
+>>>>>>> origin/master
     }
 }

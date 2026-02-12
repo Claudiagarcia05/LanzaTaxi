@@ -2,10 +2,13 @@
 
 namespace App\Providers;
 
+<<<<<<< HEAD
 use App\Services\ViajeService;
 use App\Services\AuthService;
 use App\Services\TransaccionService;
 use App\Services\EvaluacionService;
+=======
+>>>>>>> origin/master
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -15,6 +18,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+<<<<<<< HEAD
         // Registrar servicios en el contenedor de inyección de dependencias
         $this->app->singleton(ViajeService::class, function ($app) {
             return new ViajeService();
@@ -31,6 +35,9 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(EvaluacionService::class, function ($app) {
             return new EvaluacionService();
         });
+=======
+        //
+>>>>>>> origin/master
     }
 
     /**

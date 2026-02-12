@@ -1,5 +1,9 @@
 // Admin Dashboard JavaScript
+<<<<<<< HEAD
 const API_URL = 'http://localhost:3000/api';
+=======
+// API_URL ya está definido en auth.js
+>>>>>>> origin/master
 let map, taxistasMarkers = [];
 let socket;
 
@@ -10,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     cargarTarifas();
 });
 
+<<<<<<< HEAD
 // Mostrar sección
 function mostrarSeccion(seccion) {
     document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
@@ -54,6 +59,18 @@ function cargarTarifas() {
     console.log('Cargas de tarifas');
 }
     });
+=======
+function cerrarSesion() {
+    if (confirm('¿Está seguro de que desea cerrar sesión?')) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/';
+    }
+}
+
+function abrirModalTaxista() {
+    alert('Funcionalidad de creación de taxistas en desarrollo');
+>>>>>>> origin/master
 }
 
 // Cargar dashboard
@@ -62,25 +79,40 @@ async function cargarDashboard() {
         const response = await fetchAuth(`${API_URL}/admin/dashboard`);
         const data = await response.json();
 
-        // Actualizar stats
-        const viajesHoy = data.viajesHoy.total || 0;
-        const ingresosHoy = data.viajesHoy.ingresos || 0;
-        const taxistasLibres = data.taxistasEstado.find(t => t.estado === 'libre')?.total || 0;
-        const totalClientes = data.usuarios.find(u => u.role === 'cliente')?.total || 0;
+        // Actualizar stats solo si los elementos existen
+        const statViajesHoy = document.getElementById('statViajesHoy');
+        const statIngresosHoy = document.getElementById('statIngresosHoy');
+        const statTaxistasActivos = document.getElementById('statTaxistasActivos');
+        const statTotalClientes = document.getElementById('statTotalClientes');
 
-        document.getElementById('statViajesHoy').textContent = viajesHoy;
-        document.getElementById('statIngresosHoy').textContent = `€${ingresosHoy.toFixed(2)}`;
-        document.getElementById('statTaxistasActivos').textContent = taxistasLibres;
-        document.getElementById('statTotalClientes').textContent = totalClientes;
+        if (statViajesHoy) {
+            const viajesHoy = data.viajesHoy?.total || 0;
+            statViajesHoy.textContent = viajesHoy;
+        }
+        
+        if (statIngresosHoy) {
+            const ingresosHoy = data.viajesHoy?.ingresos || 0;
+            statIngresosHoy.textContent = `€${ingresosHoy.toFixed(2)}`;
+        }
+        
+        if (statTaxistasActivos) {
+            const taxistasLibres = data.taxistasEstado?.find(t => t.estado === 'libre')?.total || 0;
+            statTaxistasActivos.textContent = taxistasLibres;
+        }
+        
+        if (statTotalClientes) {
+            const totalClientes = data.usuarios?.find(u => u.role === 'cliente')?.total || 0;
+            statTotalClientes.textContent = totalClientes;
+        }
 
-// Gráfico de viajes por hora
-        crearGraficoViajesPorHora(data.viajesPorHora);
+        // Gráfico de viajes por hora
+        // crearGraficoViajesPorHora(data.viajesPorHora);
 
         // Gráfico de viajes por municipio
-        crearGraficoViajesPorMunicipio(data.viajesPorMunicipio);
+        // crearGraficoViajesPorMunicipio(data.viajesPorMunicipio);
 
         // Top taxistas
-        mostrarTopTaxistas(data.topTaxistas);
+        // mostrarTopTaxistas(data.topTaxistas);
 
     } catch (error) {
         console.error('Error al cargar dashboard:', error);
@@ -196,7 +228,13 @@ function mostrarTopTaxistas(taxistas) {
                 </tr>
             </thead>
             <tbody>
-                ${taxistas.map((t, index) => `
+                ${taxistas.map((t, index) => {
+                    const ingresosValor = Number.parseFloat(t.ingresos || 0);
+                    const ingresos = Number.isFinite(ingresosValor) ? ingresosValor.toFixed(2) : '0.00';
+                    const valoracionValor = Number.parseFloat(t.valoracion_media);
+                    const valoracion = Number.isFinite(valoracionValor) ? valoracionValor.toFixed(1) : '-';
+
+                    return `
                     <tr>
                         <td>
                             ${index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : index + 1}
@@ -204,13 +242,14 @@ function mostrarTopTaxistas(taxistas) {
                         <td>${t.nombre}</td>
                         <td>${t.licencia}</td>
                         <td>${t.total_viajes}</td>
-                        <td>€${(t.ingresos || 0).toFixed(2)}</td>
+                        <td>€${ingresos}</td>
                         <td>
                             <i class="fas fa-star" style="color: #f39c12;"></i>
-                            ${t.valoracion_media ? t.valoracion_media.toFixed(1) : '-'}
+                            ${valoracion}
                         </td>
                     </tr>
-                `).join('')}
+                `;
+                }).join('')}
             </tbody>
         </table>
     `;
@@ -219,7 +258,8 @@ function mostrarTopTaxistas(taxistas) {
 // Cargar viajes
 async function cargarViajes() {
     try {
-        const estado = document.getElementById('filtroEstado').value;
+        const filtroEstado = document.getElementById('filtroEstado');
+        const estado = filtroEstado ? filtroEstado.value : '';
         const url = estado ? `${API_URL}/admin/viajes?estado=${estado}` : `${API_URL}/admin/viajes`;
         
         const response = await fetchAuth(url);
@@ -227,12 +267,23 @@ async function cargarViajes() {
 
         const contenedor = document.getElementById('listaViajes');
         
+        if (!contenedor) {
+            console.warn('Contenedor listaViajes no encontrado');
+            return;
+        }
+        
         if (viajes.length === 0) {
             contenedor.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i><p>No hay viajes</p></div>';
             return;
         }
 
-        contenedor.innerHTML = viajes.map(viaje => `
+        contenedor.innerHTML = viajes.map(viaje => {
+            const distanciaValor = Number.parseFloat(viaje.distancia);
+            const distancia = Number.isFinite(distanciaValor) ? distanciaValor.toFixed(2) + ' km' : 'N/A';
+            const precioValor = Number.parseFloat(viaje.precio_final ?? viaje.precio_estimado ?? 0);
+            const precio = Number.isFinite(precioValor) ? precioValor.toFixed(2) : '0.00';
+
+            return `
             <div class="viaje-card">
                 <div class="viaje-header">
                     <div>
@@ -270,11 +321,11 @@ async function cargarViajes() {
                     </div>
                     <div class="info-item">
                         <label>Distancia</label>
-                        <strong>${viaje.distancia.toFixed(2)} km</strong>
+                        <strong>${distancia}</strong>
                     </div>
                     <div class="info-item">
                         <label>Precio</label>
-                        <strong>€${(viaje.precio_final || viaje.precio_estimado).toFixed(2)}</strong>
+                        <strong>€${precio}</strong>
                     </div>
                 </div>
 
@@ -286,7 +337,8 @@ async function cargarViajes() {
                     </div>
                 ` : ''}
             </div>
-        `).join('');
+        `;
+        }).join('');
 
     } catch (error) {
         console.error('Error al cargar viajes:', error);
@@ -321,6 +373,11 @@ async function cargarTaxistas() {
 
         const contenedor = document.getElementById('listaTaxistas');
         
+        if (!contenedor) {
+            console.warn('Contenedor listaTaxistas no encontrado');
+            return;
+        }
+        
         if (taxistas.length === 0) {
             contenedor.innerHTML = '<div class="empty-state"><p>No hay taxistas registrados</p></div>';
             return;
@@ -341,7 +398,11 @@ async function cargarTaxistas() {
                     </tr>
                 </thead>
                 <tbody>
-                    ${taxistas.map(t => `
+                    ${taxistas.map(t => {
+                        const valoracionValor = Number.parseFloat(t.valoracion_media);
+                        const valoracion = Number.isFinite(valoracionValor) ? valoracionValor.toFixed(1) : '-';
+
+                        return `
                         <tr>
                             <td>${t.nombre}</td>
                             <td>${t.email}</td>
@@ -351,7 +412,7 @@ async function cargarTaxistas() {
                             <td><span class="badge badge-${t.estado === 'libre' ? 'success' : t.estado === 'ocupado' ? 'danger' : 'warning'}">${t.estado.toUpperCase()}</span></td>
                             <td>
                                 <i class="fas fa-star" style="color: #f39c12;"></i>
-                                ${t.valoracion_media ? t.valoracion_media.toFixed(1) : '-'}
+                                ${valoracion}
                             </td>
                             <td>
                                 <button class="btn btn-sm btn-danger" onclick="eliminarUsuario(${t.user_id})">
@@ -359,7 +420,8 @@ async function cargarTaxistas() {
                                 </button>
                             </td>
                         </tr>
-                    `).join('')}
+                    `;
+                    }).join('')}
                 </tbody>
             </table>
         `;
@@ -448,11 +510,14 @@ async function cargarTarifas() {
         const tarifa1 = tarifas.find(t => t.nombre === 'Tarifa 1 - Urbana');
         const tarifa2 = tarifas.find(t => t.nombre === 'Tarifa 2 - Interurbana');
 
-        if (tarifa1) {
-            document.getElementById('tarifaUrbana').innerHTML = renderTarifa(tarifa1);
+        const tarifaUrbanaEl = document.getElementById('tarifaUrbana');
+        const tarifaInterurbanaEl = document.getElementById('tarifaInterurbana');
+
+        if (tarifa1 && tarifaUrbanaEl) {
+            tarifaUrbanaEl.innerHTML = renderTarifa(tarifa1);
         }
-        if (tarifa2) {
-            document.getElementById('tarifaInterurbana').innerHTML = renderTarifa(tarifa2);
+        if (tarifa2 && tarifaInterurbanaEl) {
+            tarifaInterurbanaEl.innerHTML = renderTarifa(tarifa2);
         }
 
     } catch (error) {
@@ -462,32 +527,37 @@ async function cargarTarifas() {
 
 // Render tarifa
 function renderTarifa(tarifa) {
+    const toMoney = (value) => {
+        const numero = Number.parseFloat(value);
+        return Number.isFinite(numero) ? numero.toFixed(2) : '0.00';
+    };
+
     return `
         <div style="padding: 2rem;">
             <div class="perfil-info">
                 <div class="perfil-campo">
                     <label>Bajada de Bandera</label>
-                    <strong>€${tarifa.bajada_bandera.toFixed(2)}</strong>
+                    <strong>€${toMoney(tarifa.bajada_bandera)}</strong>
                 </div>
                 <div class="perfil-campo">
                     <label>Precio por km</label>
-                    <strong>€${tarifa.precio_km.toFixed(2)}</strong>
+                    <strong>€${toMoney(tarifa.precio_km)}</strong>
                 </div>
                 <div class="perfil-campo">
                     <label>Supl. Aeropuerto</label>
-                    <strong>€${tarifa.suplemento_aeropuerto.toFixed(2)}</strong>
+                    <strong>€${toMoney(tarifa.suplemento_aeropuerto)}</strong>
                 </div>
                 <div class="perfil-campo">
                     <label>Supl. Puerto</label>
-                    <strong>€${tarifa.suplemento_puerto.toFixed(2)}</strong>
+                    <strong>€${toMoney(tarifa.suplemento_puerto)}</strong>
                 </div>
                 <div class="perfil-campo">
                     <label>Supl. Nocturno</label>
-                    <strong>€${tarifa.suplemento_nocturno.toFixed(2)}</strong>
+                    <strong>€${toMoney(tarifa.suplemento_nocturno)}</strong>
                 </div>
                 <div class="perfil-campo">
                     <label>Supl. Festivo</label>
-                    <strong>€${tarifa.suplemento_festivo.toFixed(2)}</strong>
+                    <strong>€${toMoney(tarifa.suplemento_festivo)}</strong>
                 </div>
             </div>
             <button class="btn btn-primary mt-2" onclick="editarTarifa(${tarifa.id})">
@@ -613,38 +683,51 @@ async function crearTaxista(event) {
 
 // Mostrar sección
 function mostrarSeccion(seccion) {
-    document.querySelectorAll('.seccion').forEach(s => s.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+    // Ocultar todas las secciones
+    const secciones = ['dashboard', 'usuarios', 'taxistas', 'tarifas'];
+    secciones.forEach(s => {
+        const elemento = document.getElementById(s);
+        if (elemento) {
+            if (s === seccion) {
+                elemento.classList.remove('hidden');
+            } else {
+                elemento.classList.add('hidden');
+            }
+        }
+    });
 
-    document.getElementById(`seccion-${seccion}`).classList.add('active');
-    event.target.closest('.nav-item').classList.add('active');
+    // Actualizar estado activo de los botones de navegación
+    document.querySelectorAll('.sidebar-nav-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    
+    const navButton = document.getElementById(`nav-${seccion}`);
+    if (navButton) {
+        navButton.classList.add('active');
+    }
 
+    // Actualizar título
     const titulos = {
-        'dashboard': 'Dashboard',
-        'viajes': 'Gestión de Viajes',
+        'dashboard': 'Panel Administrativo',
+        'usuarios': 'Gestión de Usuarios',
         'taxistas': 'Gestión de Taxistas',
-        'clientes': 'Gestión de Clientes',
-        'tarifas': 'Gestión de Tarifas',
-        'mapa': 'Mapa en Tiempo Real'
+        'tarifas': 'Gestión de Tarifas'
     };
-    document.getElementById('headerTitle').textContent = titulos[seccion] || 'Panel';
+    
+    const headerTitle = document.getElementById('headerTitle');
+    if (headerTitle) {
+        headerTitle.textContent = titulos[seccion] || 'Panel Admin';
+    }
 
     // Cargar datos según la sección
-    if (seccion === 'viajes') {
-        cargarViajes();
-    } else if (seccion === 'taxistas') {
+    if (seccion === 'taxistas') {
         cargarTaxistas();
-    } else if (seccion === 'clientes') {
-        cargarClientes();
-    } else if (seccion === 'mapa') {
-        if (!map) {
-            setTimeout(() => inicializarMapa(), 100);
-        } else {
-            map.invalidateSize();
-            cargarUbicacionesTaxistas();
-        }
+    } else if (seccion === 'usuarios') {
+        // cargarUsuarios();
     } else if (seccion === 'dashboard') {
         cargarDashboard();
+    } else if (seccion === 'tarifas') {
+        cargarTarifas();
     }
 }
 
