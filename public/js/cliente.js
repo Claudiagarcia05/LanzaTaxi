@@ -1,4 +1,5 @@
-const API_URL = 'http://localhost:3000/api';
+// Cliente JavaScript - Gestión de solicitudes de taxis y viajes
+// API_URL ya está definido en auth.js
 let map, origenMarker, destinoMarker, routeLayer, taxistaMarker;
 let socket;
 let viajeActualId = null;
@@ -8,79 +9,46 @@ let rutaCalculada = null;
 
 // Inicializar al cargar la página
 document.addEventListener('DOMContentLoaded', () => {
-    const auth = verificarAutenticacion(['cliente']);
-    if (!auth) return;
+    // Comentado temporalmente - verificación de autenticación
+    // const auth = verificarAutenticacion(['cliente']);
+    // if (!auth) return;
 
-    document.getElementById('userName').textContent = auth.user.nombre;
+    // Demo user
+    const userName = document.getElementById('userName');
+    if (userName) {
+        userName.textContent = 'Pasajero Demo';
+    }
     
-    inicializarMapa();
-    conectarWebSocket();
-    cargarViajes();
-    cargarPerfil();
+    // No inicializar mapa aquí - se hace en el HTML inline
+    // inicializarMapa();
+    
+    // conectarWebSocket();
+    // cargarViajes();
+    // cargarPerfil();
 });
 
-// Inicializar mapa
+// Inicializar mapa con Leaflet
 function inicializarMapa() {
-    // Centro de Lanzarote
-    map = L.map('map').setView([28.9636, -13.5477], 11);
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
-
-    // Click en el mapa para establecer origen/destino
-    map.on('click', (e) => {
-        if (!origenCoords) {
-            establecerOrigen(e.latlng.lat, e.latlng.lng);
-        } else if (!destinoCoords) {
-            establecerDestino(e.latlng.lat, e.latlng.lng);
-        }
-    });
+    try {
+        // Los mapas se inicializan en el HTML inline
+        // Esta función se mantiene para compatibilidad
+        console.log('Mapas inicializados desde HTML inline');
+    } catch (error) {
+        console.error('Error inicializando mapa:', error);
+    }
 }
 
-// Conectar WebSocket
+// Conectar WebSocket (comentado - se activará con backend)
 function conectarWebSocket() {
-    const auth = JSON.parse(localStorage.getItem('user'));
-    socket = io('http://localhost:3000');
-
-    socket.on('connect', () => {
-        console.log('✅ Conectado a WebSocket');
-        socket.emit('register', {
-            userId: auth.id,
-            role: 'cliente'
-        });
-    });
-
-    socket.on('viaje_aceptado', (data) => {
-        if (data.viajeId == viajeActualId) {
-            mostrarAlerta('🚕 ¡Un taxista ha aceptado tu viaje!', 'success');
-            document.getElementById('statusTexto').textContent = 'Taxista en camino...';
-            cargarInfoTaxista(data.taxistaId);
-        }
-    });
-
-    socket.on('ubicacion_taxista', (data) => {
-        actualizarUbicacionTaxista(data);
-    });
-
-    socket.on('viaje_finalizado', (data) => {
-        if (data.viajeId == viajeActualId) {
-            mostrarAlerta('✅ Viaje finalizado. ¡Gracias por usar LanzaTaxi!', 'success');
-            document.getElementById('viajeActivo').style.display = 'none';
-            viajeActualId = null;
-            
-            // Preguntar por valoración
-            setTimeout(() => {
-                abrirModalValoracion(data.viajeId);
-            }, 1000);
-        }
-    });
+    // const auth = JSON.parse(localStorage.getItem('user'));
+    // socket = io('http://localhost:3000');
+    // socket.on('connect', () => console.log('✅ Conectado a WebSocket'));
 }
 
 // Usar ubicación actual
-async function usarUbicacionActual() {
+function usarUbicacionActual() {
     if (!navigator.geolocation) {
-        mostrarAlerta('❌ Tu navegador no soporta geolocalización', 'danger');
+        LanzaTaxi.showNotification('Tu navegador no soporta geolocalización', 'error');
         return;
     }
 
@@ -89,10 +57,11 @@ async function usarUbicacionActual() {
             const lat = position.coords.latitude;
             const lng = position.coords.longitude;
             establecerOrigen(lat, lng);
-            map.setView([lat, lng], 13);
+            if (map) map.setView([lat, lng], 13);
+            LanzaTaxi.showNotification('Ubicación obtenida', 'success');
         },
         (error) => {
-            mostrarAlerta('❌ No se pudo obtener tu ubicación: ' + error.message, 'danger');
+            LanzaTaxi.showNotification('No se pudo obtener tu ubicación: ' + error.message, 'error');
         }
     );
 }
@@ -368,88 +337,77 @@ async function cancelarViaje() {
 // Cargar historial de viajes
 async function cargarViajes() {
     try {
-        const response = await fetchAuth(`${API_URL}/viajes/mis-viajes`);
-        const viajes = await response.json();
+        const contenedor = document.getElementById('tablaHistorialViajes');
+        
+        if (!contenedor) {
+            console.warn('Contenedor tablaHistorialViajes no encontrado');
+            return;
+        }
 
-        const contenedor = document.getElementById('listaViajes');
+        const response = await fetchAuth(`${API_URL}/viajes/mis-viajes`);
+        const data = await response.json();
+        const viajes = data.viajes || [];
         
         if (viajes.length === 0) {
             contenedor.innerHTML = `
-                <div class="empty-state">
-                    <i class="fas fa-car"></i>
-                    <p>No tienes viajes registrados</p>
-                </div>
+                <tr>
+                    <td colspan="7" class="text-center py-8 text-gray-500">
+                        <i class="fas fa-car text-4xl mb-2 block"></i>
+                        <p>No tienes viajes registrados</p>
+                    </td>
+                </tr>
             `;
             return;
         }
 
-        contenedor.innerHTML = viajes.map(viaje => `
-            <div class="viaje-card">
-                <div class="viaje-header">
-                    <div>
-                        <span class="viaje-id">#${viaje.id}</span>
-                        <span class="badge badge-${viaje.estado}">${viaje.estado.toUpperCase()}</span>
-                    </div>
-                    <span class="viaje-fecha">${new Date(viaje.fecha_solicitud).toLocaleString('es-ES')}</span>
-                </div>
-                
-                <div class="viaje-ruta">
-                    <div class="ruta-punto">
-                        <i class="fas fa-circle" style="color: #27ae60;"></i>
-                        <div>
-                            <strong>Origen</strong><br>
-                            <span class="text-muted">${viaje.origen_direccion}</span>
-                        </div>
-                    </div>
-                    <div class="ruta-punto">
-                        <i class="fas fa-circle" style="color: #e74c3c;"></i>
-                        <div>
-                            <strong>Destino</strong><br>
-                            <span class="text-muted">${viaje.destino_direccion}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="viaje-info">
-                    <div class="info-item">
-                        <label>Distancia</label>
-                        <strong>${viaje.distancia.toFixed(2)} km</strong>
-                    </div>
-                    <div class="info-item">
-                        <label>Precio</label>
-                        <strong>€${(viaje.precio_final || viaje.precio_estimado).toFixed(2)}</strong>
-                    </div>
-                    <div class="info-item">
-                        <label>Taxista</label>
-                        <strong>${viaje.taxista_nombre || 'Sin asignar'}</strong>
-                    </div>
-                </div>
-
-                <div class="viaje-acciones">
-                    ${viaje.estado === 'finalizado' && !viaje.valoracion ? `
-                        <button class="btn btn-sm btn-primary" onclick="abrirModalValoracion(${viaje.id})">
-                            <i class="fas fa-star"></i> Valorar
-                        </button>
-                    ` : ''}
-                    ${viaje.estado === 'finalizado' ? `
-                        <button class="btn btn-sm btn-secondary" onclick="descargarFactura(${viaje.id})">
-                            <i class="fas fa-download"></i> Factura
-                        </button>
-                    ` : ''}
-                    ${viaje.valoracion ? `
-                        <span class="text-success">
-                            <i class="fas fa-star"></i> Valorado: ${viaje.valoracion}/5
-                        </span>
-                    ` : ''}
-                </div>
-            </div>
-        `).join('');
+        contenedor.innerHTML = viajes.map(viaje => {
+            const fecha = new Date(viaje.fecha_solicitud).toLocaleDateString('es-ES');
+            const origen = viaje.origen_direccion || 'N/A';
+            const destino = viaje.destino_direccion || 'N/A';
+            const taxista = viaje.taxista_nombre || 'Sin asignar';
+            const distanciaValor = Number.parseFloat(viaje.distancia);
+            const distancia = Number.isFinite(distanciaValor) ? distanciaValor.toFixed(2) + ' km' : 'N/A';
+            const precioValor = Number.parseFloat(viaje.precio_final ?? viaje.precio_estimado ?? 0);
+            const precio = Number.isFinite(precioValor) ? precioValor.toFixed(2) : '0.00';
+            const estadoClass = viaje.estado === 'finalizado' ? 'completed' : viaje.estado === 'en_curso' ? 'available' : 'pending';
+            const estadoTexto = viaje.estado === 'finalizado' ? 'Completado' : viaje.estado === 'en_curso' ? 'En curso' : 'Pendiente';
+            
+            return `
+                <tr>
+                    <td>${fecha}</td>
+                    <td>${origen} → ${destino}</td>
+                    <td>${taxista}</td>
+                    <td>${distancia}</td>
+                    <td class="font-bold">${precio}€</td>
+                    <td><span class="badge badge-${estadoClass}">${estadoTexto}</span></td>
+                    <td>
+                        ${viaje.estado === 'finalizado' ? `
+                            <button class="btn btn-sm btn-outline !py-1 !px-2" onclick="descargarFactura(${viaje.id})" title="Descargar factura">
+                                <i class="fas fa-file-pdf"></i>
+                            </button>
+                        ` : ''}
+                        ${viaje.estado === 'finalizado' && !viaje.valoracion ? `
+                            <button class="btn btn-sm btn-primary !py-1 !px-2 ml-1" onclick="abrirModalValoracion(${viaje.id})" title="Valorar">
+                                <i class="fas fa-star"></i>
+                            </button>
+                        ` : ''}
+                    </td>
+                </tr>
+            `;
+        }).join('');
 
     } catch (error) {
         console.error('Error al cargar viajes:', error);
-        document.getElementById('listaViajes').innerHTML = `
-            <div class="alert alert-danger">Error al cargar el historial de viajes</div>
-        `;
+        const contenedor = document.getElementById('tablaHistorialViajes');
+        if (contenedor) {
+            contenedor.innerHTML = `
+                <tr>
+                    <td colspan="7" class="text-center py-4 text-red-600">
+                        <i class="fas fa-exclamation-triangle"></i> Error al cargar el historial de viajes
+                    </td>
+                </tr>
+            `;
+        }
     }
 }
 
@@ -525,25 +483,35 @@ async function descargarFactura(viajeId) {
 async function cargarPerfil() {
     try {
         const response = await fetchAuth(`${API_URL}/auth/profile`);
-        const usuario = await response.json();
+        const data = await response.json();
+        const usuario = data.user || data;
 
-        document.getElementById('datosPerfil').innerHTML = `
-            <div class="perfil-info">
-                <div class="perfil-campo">
-                    <label>Nombre</label>
-                    <strong>${usuario.nombre}</strong>
+        const contenedor = document.getElementById('datosPerfil');
+        
+        if (!contenedor) {
+            console.warn('Contenedor datosPerfil no encontrado');
+            return;
+        }
+
+        const roleLabel = usuario.role ? usuario.role.toUpperCase() : 'N/A';
+
+        contenedor.innerHTML = `
+            <div class="grid md:grid-cols-2 gap-4">
+                <div>
+                    <label class="form-label">Nombre completo</label>
+                    <input type="text" class="form-input" value="${usuario.nombre}" readonly>
                 </div>
-                <div class="perfil-campo">
-                    <label>Email</label>
-                    <strong>${usuario.email}</strong>
+                <div>
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-input" value="${usuario.email}" readonly>
                 </div>
-                <div class="perfil-campo">
-                    <label>Teléfono</label>
-                    <strong>${usuario.telefono || 'No especificado'}</strong>
+                <div>
+                    <label class="form-label">Teléfono</label>
+                    <input type="tel" class="form-input" value="${usuario.telefono || 'No especificado'}" readonly>
                 </div>
-                <div class="perfil-campo">
-                    <label>Tipo de cuenta</label>
-                    <strong>${usuario.role.toUpperCase()}</strong>
+                <div>
+                    <label class="form-label">Tipo de cuenta</label>
+                    <input type="text" class="form-input" value="${roleLabel}" readonly>
                 </div>
             </div>
         `;
@@ -556,23 +524,30 @@ async function cargarPerfil() {
 // Mostrar sección
 function mostrarSeccion(seccion) {
     // Ocultar todas las secciones
-    document.querySelectorAll('.seccion').forEach(s => s.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+    const secciones = ['solicitar', 'historial', 'perfil'];
+    secciones.forEach(s => {
+        const elemento = document.getElementById(s);
+        if (elemento) {
+            if (s === seccion) {
+                elemento.classList.remove('hidden');
+            } else {
+                elemento.classList.add('hidden');
+            }
+        }
+    });
 
-    // Mostrar sección seleccionada
-    document.getElementById(`seccion-${seccion}`).classList.add('active');
-    event.target.closest('.nav-item').classList.add('active');
-
-    // Actualizar título
-    const titulos = {
-        'solicitar': 'Solicitar Taxi',
-        'viajes': 'Mis Viajes',
-        'perfil': 'Mi Perfil'
-    };
-    document.getElementById('headerTitle').textContent = titulos[seccion] || 'Panel';
+    // Actualizar estado activo de los botones de navegación
+    document.querySelectorAll('.sidebar-nav-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    
+    const navButton = document.getElementById(`nav-${seccion}`);
+    if (navButton) {
+        navButton.classList.add('active');
+    }
 
     // Cargar datos según la sección
-    if (seccion === 'viajes') {
+    if (seccion === 'historial') {
         cargarViajes();
     } else if (seccion === 'perfil') {
         cargarPerfil();

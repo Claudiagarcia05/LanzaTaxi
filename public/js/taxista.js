@@ -1,5 +1,7 @@
-const API_URL = 'http://localhost:3000/api';
-let map, miMarker;
+// Taxista Dashboard JavaScript
+// API_URL ya está definido en auth.js
+let map = null; // No se usa mapa principal en taxista, solo mapaCliente en HTML
+let miMarker;
 let socket;
 let taxistaInfo = null;
 let viajeActivo = null;
@@ -7,57 +9,16 @@ let actualizacionUbicacionInterval = null;
 
 // Inicializar
 document.addEventListener('DOMContentLoaded', () => {
-    const auth = verificarAutenticacion(['taxista']);
-    if (!auth) return;
-
-    document.getElementById('userName').textContent = auth.user.nombre;
-    taxistaInfo = auth.user.taxista;
-    
-    inicializarMapa();
-    conectarWebSocket();
-    cargarDatosTaxista();
-    cargarEstadisticas();
-    cargarSolicitudes();
-    cargarViajes();
-    
-    // Actualizar ubicación cada 10 segundos si está trabajando
-    iniciarActualizacionUbicacion();
+    console.log('Panel de Taxista cargado');
+    // No inicializar mapa - se hace desde HTML inline cuando hay cliente
+    // inicializarMapa();
+    // cargarDatosTaxista();
 });
 
-// Inicializar mapa
+// Inicializar mapa - NO SE USA, se mantiene por compatibilidad
 function inicializarMapa() {
-    // Centro de Lanzarote
-    map = L.map('map').setView([28.9636, -13.5477], 11);
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
-
-    // Obtener ubicación actual
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition((position) => {
-            const lat = position.coords.latitude;
-            const lng = position.coords.longitude;
-            
-            map.setView([lat, lng], 13);
-            
-            miMarker = L.marker([lat, lng], {
-                icon: L.icon({
-                    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-yellow.png',
-                    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-                    iconSize: [25, 41],
-                    iconAnchor: [12, 41],
-                    popupAnchor: [1, -34],
-                    shadowSize: [41, 41]
-                })
-            }).addTo(map);
-            
-            miMarker.bindPopup('<strong>Tu ubicación</strong>').openPopup();
-            
-            // Enviar ubicación al servidor
-            enviarUbicacion(lat, lng);
-        });
-    }
+    console.log('Mapa de taxista se inicializa desde HTML inline cuando hay cliente activo');
+    // El mapa mapaCliente se inicializa en taxista.html con la función iniciarMapaCliente()
 }
 
 // Conectar WebSocket
@@ -478,8 +439,14 @@ async function finalizarViaje(viajeId) {
 
 // Ver en mapa
 function verEnMapa(lat, lng) {
-    map.setView([lat, lng], 15);
-    mostrarSeccion('inicio');
+    // Usar el mapa del cliente si está activo
+    if (window.mapaClienteActivo) {
+        window.mapaClienteActivo.setView([lat, lng], 15);
+        document.getElementById('mapaClienteCard').scrollIntoView({ behavior: 'smooth' });
+    } else {
+        // Abrir en Google Maps si no hay mapa activo
+        abrirNavegacion(lat, lng);
+    }
 }
 
 // Abrir navegación externa
@@ -492,63 +459,51 @@ function abrirNavegacion(lat, lng) {
 async function cargarViajes() {
     try {
         const response = await fetchAuth(`${API_URL}/taxistas/mis-viajes`);
-        const viajes = await response.json();
+        const data = await response.json();
+        const viajes = data.viajes || [];
 
-        const contenedor = document.getElementById('listaViajes');
+        const contenedor = document.getElementById('tablaViajes');
+        
+        if (!contenedor) {
+            console.warn('Contenedor tablaViajes no encontrado');
+            return;
+        }
         
         if (viajes.length === 0) {
             contenedor.innerHTML = `
-                <div class="empty-state">
-                    <i class="fas fa-car"></i>
-                    <p>No tienes viajes registrados</p>
-                </div>
+                <tr>
+                    <td colspan="7" class="text-center py-8 text-gray-500">
+                        <i class="fas fa-car text-4xl mb-2 block"></i>
+                        <p>No tienes viajes registrados</p>
+                    </td>
+                </tr>
             `;
             return;
         }
 
-        contenedor.innerHTML = viajes.map(viaje => `
-            <div class="viaje-card">
-                <div class="viaje-header">
-                    <div>
-                        <span class="viaje-id">#${viaje.id}</span>
-                        <span class="badge badge-${viaje.estado}">${viaje.estado.toUpperCase()}</span>
-                    </div>
-                    <span class="viaje-fecha">${new Date(viaje.fecha_solicitud).toLocaleString('es-ES')}</span>
-                </div>
-                
-                <div class="viaje-ruta">
-                    <div class="ruta-punto">
-                        <i class="fas fa-circle" style="color: #27ae60;"></i>
-                        <div>
-                            <strong>Origen</strong><br>
-                            <span class="text-muted">${viaje.origen_direccion}</span>
-                        </div>
-                    </div>
-                    <div class="ruta-punto">
-                        <i class="fas fa-circle" style="color: #e74c3c;"></i>
-                        <div>
-                            <strong>Destino</strong><br>
-                            <span class="text-muted">${viaje.destino_direccion}</span>
-                        </div>
-                    </div>
-                </div>
+        contenedor.innerHTML = viajes.map(viaje => {
+            const clienteNombre = viaje.cliente_nombre || (viaje.cliente ? viaje.cliente.nombre : 'N/A');
+            const distanciaValor = Number.parseFloat(viaje.distancia);
+            const distancia = Number.isFinite(distanciaValor) ? distanciaValor.toFixed(2) + ' km' : 'N/A';
+            const precioValor = Number.parseFloat(viaje.precio_final ?? viaje.precio_estimado ?? 0);
+            const precio = Number.isFinite(precioValor) ? precioValor.toFixed(2) : '0.00';
 
-                <div class="viaje-info">
-                    <div class="info-item">
-                        <label>Cliente</label>
-                        <strong>${viaje.cliente_nombre}</strong>
-                    </div>
-                    <div class="info-item">
-                        <label>Distancia</label>
-                        <strong>${viaje.distancia.toFixed(2)} km</strong>
-                    </div>
-                    <div class="info-item">
-                        <label>Ingreso</label>
-                        <strong>€${(viaje.precio_final || viaje.precio_estimado).toFixed(2)}</strong>
-                    </div>
-                </div>
-            </div>
-        `).join('');
+            return `
+            <tr>
+                <td class="font-medium">#${viaje.id}</td>
+                <td>${new Date(viaje.fecha_solicitud).toLocaleString('es-ES')}</td>
+                <td>${clienteNombre}</td>
+                <td>${viaje.origen_direccion || 'N/A'} → ${viaje.destino_direccion || 'N/A'}</td>
+                <td>${distancia}</td>
+                <td class="font-bold">€${precio}</td>
+                <td>
+                    <span class="flex items-center gap-1">
+                        ${viaje.valoracion || 'N/A'} ${viaje.valoracion ? '<i class="fas fa-star text-[#FFD700]"></i>' : ''}
+                    </span>
+                </td>
+            </tr>
+        `;
+        }).join('');
 
     } catch (error) {
         console.error('Error al cargar viajes:', error);
@@ -557,26 +512,46 @@ async function cargarViajes() {
 
 // Mostrar sección
 function mostrarSeccion(seccion) {
-    document.querySelectorAll('.seccion').forEach(s => s.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+    // Ocultar todas las secciones
+    const secciones = ['dashboard', 'viajes', 'ganancias'];
+    secciones.forEach(s => {
+        const elemento = document.getElementById(s);
+        if (elemento) {
+            if (s === seccion) {
+                elemento.classList.remove('hidden');
+            } else {
+                elemento.classList.add('hidden');
+            }
+        }
+    });
 
-    document.getElementById(`seccion-${seccion}`).classList.add('active');
-    event.target.closest('.nav-item').classList.add('active');
+    // Actualizar estado activo de los botones de navegación
+    document.querySelectorAll('.sidebar-nav-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    
+    const navButton = document.getElementById(`nav-${seccion}`);
+    if (navButton) {
+        navButton.classList.add('active');
+    }
 
+    // Actualizar título
     const titulos = {
-        'inicio': 'Panel de Control',
-        'solicitudes': 'Solicitudes Pendientes',
+        'dashboard': 'Panel de Control',
         'viajes': 'Mis Viajes',
-        'estadisticas': 'Estadísticas'
+        'ganancias': 'Estadísticas y Ganancias'
     };
-    document.getElementById('headerTitle').textContent = titulos[seccion] || 'Panel';
+    
+    const headerTitle = document.getElementById('headerTitle');
+    if (headerTitle) {
+        headerTitle.textContent = titulos[seccion] || 'Panel del Taxista';
+    }
 
-    if (seccion === 'solicitudes') {
-        cargarSolicitudes();
-    } else if (seccion === 'viajes') {
+    // Cargar datos según la sección
+    if (seccion === 'viajes') {
         cargarViajes();
-    } else if (seccion === 'estadisticas') {
-        cargarEstadisticas();
+    } else if (seccion === 'ganancias') {
+        // cargarEstadisticas();
     }
 }
 

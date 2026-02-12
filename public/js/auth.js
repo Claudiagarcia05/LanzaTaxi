@@ -1,4 +1,5 @@
-const API_URL = 'http://localhost:3000/api';
+// Obtener API_URL desde meta tag (dinámico) o usar fallback
+const API_URL = document.querySelector('meta[name="api-url"]')?.content || 'http://localhost:8000/api';
 
 // Manejar login
 async function handleLogin(event) {
@@ -32,13 +33,13 @@ async function handleLogin(event) {
         // Redirigir según el rol
         switch (data.user.role) {
             case 'cliente':
-                window.location.href = '/cliente.html';
+                window.location.href = '/cliente';
                 break;
             case 'taxista':
-                window.location.href = '/taxista.html';
+                window.location.href = '/taxista';
                 break;
             case 'admin':
-                window.location.href = '/admin.html';
+                window.location.href = '/admin';
                 break;
             default:
                 throw new Error('Rol no válido');
@@ -89,7 +90,7 @@ async function handleRegister(event) {
         localStorage.setItem('user', JSON.stringify(data.user));
 
         alert('✅ ¡Cuenta creada exitosamente!');
-        window.location.href = '/cliente.html';
+        window.location.href = '/cliente';
 
     } catch (error) {
         alert('❌ Error: ' + error.message);

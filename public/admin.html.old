@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>LanzaTaxi · Panel Administrador</title>
+    <meta name="description" content="Control y estadísticas del sistema unificado de taxis">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="favicon.ico">
+    
+    <!-- Tailwind CSS (compilado) -->
+    <link href="css/tailwind.css?v=20260212" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <link href="css/styles.css?v=20260211" rel="stylesheet">
+    
+    <!-- Leaflet para mapas -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <!-- Chart.js para gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-50">
+    
+    <a href="#main-content" class="skip-link">
+        Saltar al contenido principal
+    </a>
+
+    <!-- SIDEBAR - Admin -->
+    <aside class="sidebar">
+        <div class="sidebar-logo">
+            <div class="w-10 h-10 bg-[#FFD700] rounded-lg flex items-center justify-center">
+                <i class="fas fa-taxi text-[#1A1A1A] text-xl"></i>
+            </div>
+            <span class="text-xl font-bold text-[#1A1A1A]">LanzaTaxi</span>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="index.html" class="sidebar-nav-item mb-4 text-sm">
+                <i class="fas fa-arrow-left"></i>
+                Volver al inicio
+            </a>
+            
+            <div class="divider"></div>
+            
+            <button onclick="mostrarSeccion('dashboard')" class="sidebar-nav-item active" id="nav-dashboard">
+                <i class="fas fa-chart-pie"></i>
+                Dashboard
+            </button>
+            
+            <button onclick="mostrarSeccion('usuarios')" class="sidebar-nav-item" id="nav-usuarios">
+                <i class="fas fa-users"></i>
+                Usuarios
+            </button>
+            
+            <button onclick="mostrarSeccion('taxistas')" class="sidebar-nav-item" id="nav-taxistas">
+                <i class="fas fa-taxi"></i>
+                Taxistas
+            </button>
+            
+            <button onclick="mostrarSeccion('tarifas')" class="sidebar-nav-item" id="nav-tarifas">
+                <i class="fas fa-tag"></i>
+                Tarifas
+            </button>
+            
+            <div class="divider"></div>
+            
+            <button onclick="cerrarSesion()" class="sidebar-nav-item text-red-600 hover:bg-red-50">
+                <i class="fas fa-sign-out-alt"></i>
+                Cerrar Sesión
+            </button>
+        </nav>
+        
+        <!-- Versión del sistema -->
+        <div class="absolute bottom-6 left-6 right-6">
+            <div class="text-xs text-gray-500 text-center">
+                <p>LanzaTaxi v2.0</p>
+                <p>Panel Administrador</p>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main id="main-content" class="main-content">
+        
+        <div class="panel-header">
+            <h1 class="text-3xl font-bold text-[#1A1A1A]">Panel del Administrador</h1>
+            <p class="text-gray-600">Control y estadísticas del sistema unificado</p>
+        </div>
+
+        <!-- SECCIÓN: DASHBOARD - BASADO EXACTAMENTE EN IMAGEN 4.png -->
+        <section id="dashboard" class="space-y-6">
+            
+            <!-- Stats principales - EXACTO imagen 4.png -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+                <div class="stat-card">
+                    <div class="flex justify-between items-start">
+                        <span class="stat-label">Servicios activos</span>
+                        <span class="text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full">+12%</span>
+                    </div>
+                    <div class="stat-value text-3xl md:text-4xl">247</div>
+                    <p class="text-xs text-gray-500 mt-2">En este momento</p>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="flex justify-between items-start">
+                        <span class="stat-label">Servicios hoy</span>
+                        <span class="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded-full">+8%</span>
+                    </div>
+                    <div class="stat-value text-3xl md:text-4xl">1,834</div>
+                    <p class="text-xs text-gray-500 mt-2">Vs. ayer +5.2%</p>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="flex justify-between items-start">
+                        <span class="stat-label">Ingresos hoy</span>
+                        <span class="text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full">+15%</span>
+                    </div>
+                    <div class="stat-value text-3xl md:text-4xl">28.5k€</div>
+                    <p class="text-xs text-gray-500 mt-2">Media por viaje: 15.50€</p>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="flex justify-between items-start">
+                        <span class="stat-label">Ubicación activos</span>
+                        <span class="text-xs text-purple-600 bg-purple-50 px-2 py-1 rounded-full">GPS</span>
+                    </div>
+                    <div class="stat-value text-3xl md:text-4xl">3,247</div>
+                    <p class="text-xs text-gray-500 mt-2">Taxis en ruta</p>
+                </div>
+            </div>
+            
+            <!-- Gráficos - Servicios por municipio y Demanda por hora -->
+            <div class="grid lg:grid-cols-2 gap-6">
+                
+                <!-- Servicios por Municipio (EXACTO imagen 4.png) -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-map-marker-alt text-[#0068CC] mr-2"></i>
+                            Servicios por Municipio
+                        </h3>
+                        <span class="text-xs text-gray-500">Últimas 24h</span>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <!-- Arrecife -->
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="font-medium text-[#1A1A1A]">Arrecife</span>
+                                <span class="font-semibold text-[#0068CC]">542</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div class="bg-[#0068CC] h-2.5 rounded-full" style="width: 45%"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Teguise -->
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="font-medium text-[#1A1A1A]">Teguise</span>
+                                <span class="font-semibold text-[#0068CC]">287</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div class="bg-[#0068CC] h-2.5 rounded-full" style="width: 28%"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Tías -->
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="font-medium text-[#1A1A1A]">Tías</span>
+                                <span class="font-semibold text-[#0068CC]">423</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div class="bg-[#0068CC] h-2.5 rounded-full" style="width: 35%"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Yaiza -->
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="font-medium text-[#1A1A1A]">Yaiza</span>
+                                <span class="font-semibold text-[#0068CC]">315</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div class="bg-[#0068CC] h-2.5 rounded-full" style="width: 26%"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- San Bartolomé -->
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="font-medium text-[#1A1A1A]">San Bartolomé</span>
+                                <span class="font-semibold text-[#0068CC]">198</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div class="bg-[#0068CC] h-2.5 rounded-full" style="width: 18%"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Tinajo -->
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="font-medium text-[#1A1A1A]">Tinajo</span>
+                                <span class="font-semibold text-[#0068CC]">142</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div class="bg-[#0068CC] h-2.5 rounded-full" style="width: 12%"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- Haría -->
+                        <div>
+                            <div class="flex justify-between items-center mb-1">
+                                <span class="font-medium text-[#1A1A1A]">Haría</span>
+                                <span class="font-semibold text-[#0068CC]">97</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div class="bg-[#0068CC] h-2.5 rounded-full" style="width: 8%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 text-right">
+                        <a href="#" class="text-sm text-[#0068CC] hover:underline">
+                            Ver detalle por municipio →
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Demanda por Hora (EXACTO imagen 4.png) -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-chart-line text-[#0068CC] mr-2"></i>
+                            Demanda por Hora
+                        </h3>
+                        <span class="text-xs text-gray-500">Hoy vs. ayer</span>
+                    </div>
+                    
+                    <div class="h-64 relative">
+                        <canvas id="graficoDemanda"></canvas>
+                    </div>
+                    
+                    <div class="grid grid-cols-3 gap-2 mt-4 text-center text-xs">
+                        <div class="bg-gray-50 p-2 rounded">
+                            <span class="text-gray-600">Pico mañana</span>
+                            <p class="font-bold text-[#1A1A1A]">08:00 - 09:00</p>
+                        </div>
+                        <div class="bg-gray-50 p-2 rounded">
+                            <span class="text-gray-600">Pico mediodía</span>
+                            <p class="font-bold text-[#1A1A1A]">14:00 - 15:00</p>
+                        </div>
+                        <div class="bg-gray-50 p-2 rounded">
+                            <span class="text-gray-600">Pico tarde</span>
+                            <p class="font-bold text-[#1A1A1A]">19:00 - 20:00</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Licencias por Municipio - Tabla (EXACTO imagen 4.png) -->
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-clipboard-list text-[#0068CC] mr-2"></i>
+                        Licencias por Municipio
+                    </h3>
+                    <div class="flex gap-2">
+                        <span class="badge badge-available">Operativo</span>
+                        <span class="badge badge-pending">Alta demanda</span>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Municipio</th>
+                                <th class="text-center">Licencias Totales</th>
+                                <th class="text-center">Activas Ahora</th>
+                                <th class="text-center">Servicios Hoy</th>
+                                <th class="text-center">Tiempo Respuesta</th>
+                                <th class="text-center">Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="font-medium text-[#1A1A1A]">Arrecife</td>
+                                <td class="text-center">87</td>
+                                <td class="text-center"><span class="font-semibold text-[#10B981]">64</span></td>
+                                <td class="text-center">542</td>
+                                <td class="text-center">4.2 min</td>
+                                <td class="text-center"><span class="badge badge-available">Operativo</span></td>
+                            </tr>
+                            <tr>
+                                <td class="font-medium text-[#1A1A1A]">Teguise</td>
+                                <td class="text-center">52</td>
+                                <td class="text-center"><span class="font-semibold text-[#10B981]">38</span></td>
+                                <td class="text-center">287</td>
+                                <td class="text-center">5.8 min</td>
+                                <td class="text-center"><span class="badge badge-available">Operativo</span></td>
+                            </tr>
+                            <tr>
+                                <td class="font-medium text-[#1A1A1A]">Tías</td>
+                                <td class="text-center">64</td>
+                                <td class="text-center"><span class="font-semibold text-[#F59E0B]">51</span></td>
+                                <td class="text-center">423</td>
+                                <td class="text-center">3.9 min</td>
+                                <td class="text-center"><span class="badge badge-pending">Alta demanda</span></td>
+                            </tr>
+                            <tr>
+                                <td class="font-medium text-[#1A1A1A]">Yaiza</td>
+                                <td class="text-center">44</td>
+                                <td class="text-center"><span class="font-semibold text-[#10B981]">32</span></td>
+                                <td class="text-center">315</td>
+                                <td class="text-center">4.5 min</td>
+                                <td class="text-center"><span class="badge badge-available">Operativo</span></td>
+                            </tr>
+                            <tr>
+                                <td class="font-medium text-[#1A1A1A]">San Bartolomé</td>
+                                <td class="text-center">38</td>
+                                <td class="text-center"><span class="font-semibold text-[#10B981]">26</span></td>
+                                <td class="text-center">198</td>
+                                <td class="text-center">6.1 min</td>
+                                <td class="text-center"><span class="badge badge-available">Operativo</span></td>
+                            </tr>
+                            <tr>
+                                <td class="font-medium text-[#1A1A1A]">Tinajo</td>
+                                <td class="text-center">31</td>
+                                <td class="text-center"><span class="font-semibold text-[#10B981]">19</span></td>
+                                <td class="text-center">142</td>
+                                <td class="text-center">7.3 min</td>
+                                <td class="text-center"><span class="badge badge-available">Operativo</span></td>
+                            </tr>
+                            <tr>
+                                <td class="font-medium text-[#1A1A1A]">Haría</td>
+                                <td class="text-center">28</td>
+                                <td class="text-center"><span class="font-semibold text-[#10B981]">15</span></td>
+                                <td class="text-center">97</td>
+                                <td class="text-center">8.0 min</td>
+                                <td class="text-center"><span class="badge badge-available">Operativo</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- KPIs de rendimiento -->
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="card">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-clock text-[#0068CC] text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Tiempo Promedio de Respuesta</p>
+                            <p class="text-2xl font-bold text-[#1A1A1A]">4.2 min</p>
+                            <p class="text-xs text-[#10B981] mt-1">↓ 52% mejor que ayer</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-star text-[#F59E0B] text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Satisfacción del Cliente</p>
+                            <p class="text-2xl font-bold text-[#1A1A1A]">4.7/5</p>
+                            <p class="text-xs text-gray-500 mt-1">⭐ Basado en 1,234 reseñas</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-check-circle text-[#10B981] text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Tasa de Aceptación</p>
+                            <p class="text-2xl font-bold text-[#1A1A1A]">94%</p>
+                            <p class="text-xs text-[#10B981] mt-1">📈 3% mejor que la semana pasada</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN: USUARIOS -->
+        <section id="usuarios" class="hidden">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Gestión de Usuarios</h3>
+                    <button class="btn btn-primary btn-sm">
+                        <i class="fas fa-user-plus"></i>
+                        Nuevo usuario
+                    </button>
+                </div>
+                <!-- Tabla de usuarios -->
+                <div class="table-container" id="listaUsuarios">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre</th>
+                                <th>Email</th>
+                                <th>Teléfono</th>
+                                <th>Viajes</th>
+                                <th>Registro</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>#1245</td>
+                                <td class="font-medium">Juan Díaz</td>
+                                <td>juan@email.com</td>
+                                <td>628 123 456</td>
+                                <td>23</td>
+                                <td>15/01/2025</td>
+                                <td><span class="badge badge-available">Activo</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline !py-1 !px-2">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <!-- Más filas... -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN: TAXISTAS -->
+        <section id="taxistas" class="hidden">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Gestión de Taxistas</h3>
+                    <div class="flex gap-2">
+                        <div class="input-icon">
+                            <i class="fas fa-search"></i>
+                            <input type="text" class="form-input !py-2 !px-8" placeholder="Buscar taxista...">
+                        </div>
+                        <button class="btn btn-primary">
+                            <i class="fas fa-plus"></i>
+                            Añadir
+                        </button>
+                    </div>
+                </div>
+                <!-- Tabla de taxistas -->
+                <div class="table-container" id="listaTaxistas">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>ID Taxi</th>
+                                <th>Nombre</th>
+                                <th>Vehículo</th>
+                                <th>Municipio</th>
+                                <th>Estado</th>
+                                <th>Servicios/hoy</th>
+                                <th>Valoración</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="font-medium">#4721</td>
+                                <td>Juan García</td>
+                                <td>Toyota Prius</td>
+                                <td>Arrecife</td>
+                                <td><span class="badge badge-available">Disponible</span></td>
+                                <td>8</td>
+                                <td>4.8⭐</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline !py-1 !px-2">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <!-- Más filas... -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN: VIAJES -->
+        <section id="viajes" class="hidden">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Monitor de Viajes en Tiempo Real</h3>
+                    <span class="badge badge-pending">
+                        <i class="fas fa-circle animate-pulse-subtle mr-1"></i>
+                        247 viajes activos
+                    </span>
+                </div>
+                <div id="mapaAdmin" class="map-container h-[400px]"></div>
+                
+                <div class="mt-6">
+                    <h4 class="font-semibold text-[#1A1A1A] mb-3">Últimos viajes</h4>
+                    <div class="table-container" id="listaViajes">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Cliente</th>
+                                    <th>Taxista</th>
+                                    <th>Origen → Destino</th>
+                                    <th>Precio</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="font-medium">#2847</td>
+                                    <td>María López</td>
+                                    <td>Juan García</td>
+                                    <td>Aeropuerto → Hotel Fariones</td>
+                                    <td>18.50€</td>
+                                    <td><span class="badge badge-available">En curso</span></td>
+                                </tr>
+                                <!-- Más filas... -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN: TARIFAS -->
+        <section id="tarifas" class="hidden">
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="card">
+                    <h3 class="card-title mb-4">Tarifas Oficiales</h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                            <span class="font-medium">Tarifa 1 - Urbano</span>
+                            <span class="text-lg font-bold">0.60€/km</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                            <span class="font-medium">Tarifa 2 - Interurbano</span>
+                            <span class="text-lg font-bold">0.75€/km</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                            <span class="font-medium">Bajada de bandera</span>
+                            <span class="text-lg font-bold">3.15€</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-outline w-full mt-4">
+                        <i class="fas fa-edit"></i>
+                        Editar tarifas
+                    </button>
+                </div>
+                
+                <div class="card">
+                    <h3 class="card-title mb-4">Suplementos</h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                            <span class="font-medium">Aeropuerto (ACE)</span>
+                            <span class="text-lg font-bold">3.50€</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                            <span class="font-medium">Puerto</span>
+                            <span class="text-lg font-bold">2.00€</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                            <span class="font-medium">Nocturno (22-6h)</span>
+                            <span class="text-lg font-bold">+0.20€/km</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                            <span class="font-medium">Festivos</span>
+                            <span class="text-lg font-bold">+0.30€/km</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        function mostrarSeccion(seccion) {
+            document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+            document.getElementById(seccion).classList.remove('hidden');
+            
+            document.querySelectorAll('.sidebar-nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            document.getElementById(`nav-${seccion}`).classList.add('active');
+        }
+        
+        function cerrarSesion() {
+            window.location.href = 'index.html';
+        }
+        
+        // Gráfico de demanda por hora
+        window.onload = function() {
+            const ctx = document.getElementById('graficoDemanda')?.getContext('2d');
+            if (ctx) {
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ['0', '2', '4', '6', '8', '10', '12', '14', '16', '18', '20', '22', '24'],
+                        datasets: [{
+                            label: 'Demanda hoy',
+                            data: [45, 32, 28, 35, 89, 156, 234, 287, 245, 198, 234, 156, 78],
+                            borderColor: '#0068CC',
+                            backgroundColor: 'rgba(0, 104, 204, 0.05)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Mapa admin - verificar que Leaflet esté cargado
+            if (typeof L !== 'undefined' && document.getElementById('mapaAdmin')) {
+                const map = L.map('mapaAdmin').setView([28.963, -13.547], 11);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+            }
+        };
+    </script>
+    
+    <!-- Script de autenticación -->
+    <script src="js/auth.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>
