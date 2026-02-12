@@ -24,7 +24,6 @@
     <meta property="og:type" content="website">
     
     <!-- Tailwind CSS (compilado) + Estilos personalizados -->
-    <link href="{{ asset('css/tailwind.css?v=20260212') }}" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     <link href="{{ asset('css/styles.css?v=20260211') }}" rel="stylesheet">
     
@@ -45,15 +44,13 @@
     </a>
 
     <!-- NAVBAR - Mobile First -->
-    <nav class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+    <nav class="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm nav-animate">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-center h-16 md:h-20">
                 
                 <!-- Logo -->
-                <a href="{{ route('home') }}" class="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-[#0068CC] focus:ring-offset-2 rounded-lg" aria-label="LanzaTaxi inicio">
-                    <div class="w-8 h-8 md:w-10 md:h-10 bg-[#FFD700] rounded-lg flex items-center justify-center">
-                        <i class="fas fa-taxi text-[#1A1A1A] text-lg md:text-xl"></i>
-                    </div>
+                <a href="{{ route('home') }}" class="flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-[#244194] focus:ring-offset-2 rounded-lg" aria-label="LanzaTaxi inicio">
+                    <img src="{{ asset('img/logo_sin_fondo.png') }}" alt="LanzaTaxi" class="w-8 h-8 md:w-10 md:h-10 object-contain">
                     <span class="text-lg md:text-xl font-bold text-[#1A1A1A]">LanzaTaxi</span>
                 </a>
                 
@@ -498,36 +495,38 @@
                 <h2 id="modal-title" class="text-xl font-bold text-[#1A1A1A]">
                     <span id="modal-title-text">Iniciar sesión</span>
                 </h2>
-                <button onclick="cerrarModal()" class="p-2 hover:bg-gray-100 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#0068CC]" aria-label="Cerrar modal">
+                <button onclick="cerrarModal()" class="p-2 hover:bg-gray-100 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#244194]" aria-label="Cerrar modal">
                     <i class="fas fa-times text-gray-600"></i>
                 </button>
             </div>
             
             <div class="p-6">
                 <!-- Tabs -->
-                <div class="flex gap-2 mb-6 bg-gray-100 p-1 rounded-lg">
-                    <button id="tab-login" onclick="cambiarTab('login')" class="flex-1 py-2 px-4 rounded-lg font-medium transition-all duration-200">
+                <div class="flex gap-2 mb-6 bg-gray-100 p-1 rounded-lg" role="tablist" aria-label="Autenticacion">
+                    <button id="tab-login" role="tab" aria-selected="true" aria-controls="login-panel" tabindex="0" onclick="cambiarTab('login')" class="flex-1 py-2 px-4 rounded-lg font-medium transition-all duration-200">
                         Iniciar sesión
                     </button>
-                    <button id="tab-register" onclick="cambiarTab('register')" class="flex-1 py-2 px-4 rounded-lg font-medium transition-all duration-200">
+                    <button id="tab-register" role="tab" aria-selected="false" aria-controls="register-panel" tabindex="-1" onclick="cambiarTab('register')" class="flex-1 py-2 px-4 rounded-lg font-medium transition-all duration-200">
                         Registrarse
                     </button>
                 </div>
+
+                <div id="auth-feedback" class="form-feedback hidden" role="status" aria-live="polite"></div>
                 
                 <!-- Login Form -->
-                <form id="login-form" class="space-y-4" onsubmit="handleLogin(event)">
+                <form id="login-panel" class="space-y-4" role="tabpanel" aria-labelledby="tab-login" aria-hidden="false" onsubmit="handleLogin(event)">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <label for="loginEmail" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
                         <div class="input-icon">
                             <i class="fas fa-envelope"></i>
-                            <input type="email" id="loginEmail" class="form-input" placeholder="tu@email.com" required>
+                            <input type="email" id="loginEmail" class="form-input" placeholder="tu@email.com" autocomplete="email" aria-describedby="auth-feedback" required>
                         </div>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
+                        <label for="loginPassword" class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
                         <div class="input-icon">
                             <i class="fas fa-lock"></i>
-                            <input type="password" id="loginPassword" class="form-input" placeholder="••••••••" required>
+                            <input type="password" id="loginPassword" class="form-input" placeholder="••••••••" autocomplete="current-password" aria-describedby="auth-feedback" required>
                         </div>
                     </div>
                     
@@ -538,40 +537,40 @@
                     
                     <div class="bg-gray-50 p-4 rounded-lg text-sm">
                         <p class="font-medium text-gray-700 mb-2">Usuarios de prueba:</p>
-                        <p class="text-gray-600">👤 Cliente: cliente@test.com / password</p>
-                        <p class="text-gray-600">🚕 Taxista: taxista@test.com / password</p>
-                        <p class="text-gray-600">👑 Admin: admin@test.com / password</p>
+                        <p class="text-gray-600">👤 Cliente: cliente@test.com / 123456</p>
+                        <p class="text-gray-600">🚕 Taxista: taxista@test.com / 123456</p>
+                        <p class="text-gray-600">👑 Admin: admin@test.com / 123456</p>
                     </div>
                 </form>
                 
                 <!-- Register Form -->
-                <form id="register-form" class="space-y-4 hidden" onsubmit="handleRegister(event)">
+                <form id="register-panel" class="space-y-4 hidden" role="tabpanel" aria-labelledby="tab-register" aria-hidden="true" onsubmit="handleRegister(event)">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Nombre completo</label>
+                        <label for="registerNombre" class="block text-sm font-medium text-gray-700 mb-1">Nombre completo</label>
                         <div class="input-icon">
                             <i class="fas fa-user"></i>
-                            <input type="text" id="registerNombre" class="form-input" placeholder="Ej: María García" required>
+                            <input type="text" id="registerNombre" class="form-input" placeholder="Ej: María García" autocomplete="name" aria-describedby="auth-feedback" required>
                         </div>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                        <label for="registerEmail" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
                         <div class="input-icon">
                             <i class="fas fa-envelope"></i>
-                            <input type="email" id="registerEmail" class="form-input" placeholder="tu@email.com" required>
+                            <input type="email" id="registerEmail" class="form-input" placeholder="tu@email.com" autocomplete="email" aria-describedby="auth-feedback" required>
                         </div>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
+                        <label for="registerTelefono" class="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
                         <div class="input-icon">
                             <i class="fas fa-phone"></i>
-                            <input type="tel" id="registerTelefono" class="form-input" placeholder="628 123 456" required>
+                            <input type="tel" id="registerTelefono" class="form-input" placeholder="628 123 456" autocomplete="tel" aria-describedby="auth-feedback" required>
                         </div>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
+                        <label for="registerPassword" class="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
                         <div class="input-icon">
                             <i class="fas fa-lock"></i>
-                            <input type="password" id="registerPassword" class="form-input" placeholder="Mínimo 6 caracteres" minlength="6" required>
+                            <input type="password" id="registerPassword" class="form-input" placeholder="Mínimo 6 caracteres" minlength="6" autocomplete="new-password" aria-describedby="auth-feedback" required>
                         </div>
                     </div>
                     
@@ -602,12 +601,51 @@
             document.getElementById('authModal').style.display = 'none';
         }
         
+        function setAuthFeedback(message = '', type = 'info') {
+            const feedback = document.getElementById('auth-feedback');
+            if (!feedback) {
+                return;
+            }
+
+            feedback.textContent = message;
+            feedback.classList.remove('form-feedback--error', 'form-feedback--success');
+
+            if (!message) {
+                feedback.classList.add('hidden');
+                return;
+            }
+
+            feedback.classList.remove('hidden');
+
+            if (type === 'error') {
+                feedback.classList.add('form-feedback--error');
+            }
+
+            if (type === 'success') {
+                feedback.classList.add('form-feedback--success');
+            }
+        }
+
+        function setFormInvalid(formId, isInvalid) {
+            const form = document.getElementById(formId);
+            if (!form) {
+                return;
+            }
+
+            form.querySelectorAll('input').forEach((input) => {
+                input.setAttribute('aria-invalid', isInvalid ? 'true' : 'false');
+            });
+        }
+
         function cambiarTab(tab) {
-            const loginForm = document.getElementById('login-form');
-            const registerForm = document.getElementById('register-form');
+            const loginForm = document.getElementById('login-panel');
+            const registerForm = document.getElementById('register-panel');
             const tabLogin = document.getElementById('tab-login');
             const tabRegister = document.getElementById('tab-register');
             const modalTitle = document.getElementById('modal-title-text');
+            setAuthFeedback('');
+            setFormInvalid('login-panel', false);
+            setFormInvalid('register-panel', false);
             
             if (tab === 'login') {
                 loginForm.classList.remove('hidden');
@@ -616,6 +654,12 @@
                 tabLogin.classList.remove('bg-transparent', 'text-gray-700');
                 tabRegister.classList.remove('bg-[#FFD700]', 'text-[#1A1A1A]');
                 tabRegister.classList.add('bg-transparent', 'text-gray-700');
+                tabLogin.setAttribute('aria-selected', 'true');
+                tabLogin.setAttribute('tabindex', '0');
+                tabRegister.setAttribute('aria-selected', 'false');
+                tabRegister.setAttribute('tabindex', '-1');
+                loginForm.setAttribute('aria-hidden', 'false');
+                registerForm.setAttribute('aria-hidden', 'true');
                 modalTitle.textContent = 'Iniciar sesión';
             } else {
                 loginForm.classList.add('hidden');
@@ -624,9 +668,42 @@
                 tabRegister.classList.remove('bg-transparent', 'text-gray-700');
                 tabLogin.classList.remove('bg-[#FFD700]', 'text-[#1A1A1A]');
                 tabLogin.classList.add('bg-transparent', 'text-gray-700');
+                tabRegister.setAttribute('aria-selected', 'true');
+                tabRegister.setAttribute('tabindex', '0');
+                tabLogin.setAttribute('aria-selected', 'false');
+                tabLogin.setAttribute('tabindex', '-1');
+                loginForm.setAttribute('aria-hidden', 'true');
+                registerForm.setAttribute('aria-hidden', 'false');
                 modalTitle.textContent = 'Crear cuenta';
             }
         }
+
+        document.querySelector('[role="tablist"]')?.addEventListener('keydown', (event) => {
+            const tabs = ['tab-login', 'tab-register'];
+            const currentIndex = tabs.findIndex((id) => document.getElementById(id)?.getAttribute('aria-selected') === 'true');
+
+            if (event.key === 'ArrowRight') {
+                const nextIndex = (currentIndex + 1) % tabs.length;
+                cambiarTab(nextIndex === 0 ? 'login' : 'register');
+                document.getElementById(tabs[nextIndex])?.focus();
+            }
+
+            if (event.key === 'ArrowLeft') {
+                const prevIndex = (currentIndex - 1 + tabs.length) % tabs.length;
+                cambiarTab(prevIndex === 0 ? 'login' : 'register');
+                document.getElementById(tabs[prevIndex])?.focus();
+            }
+
+            if (event.key === 'Home') {
+                cambiarTab('login');
+                document.getElementById('tab-login')?.focus();
+            }
+
+            if (event.key === 'End') {
+                cambiarTab('register');
+                document.getElementById('tab-register')?.focus();
+            }
+        });
         
         // Cerrar modal con ESC (Accesibilidad)
         document.addEventListener('keydown', function(e) {

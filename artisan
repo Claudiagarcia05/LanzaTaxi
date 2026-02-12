@@ -1,20 +1,5 @@
 #!/usr/bin/env php
 <?php
-<<<<<<< HEAD
-/*
- * Artisan CLI - Punto de entrada para comandos de Laravel
- */
-
-define('LARAVEL_START', microtime(true));
-
-require __DIR__.'/vendor/autoload.php';
-
-$app = require_once __DIR__.'/bootstrap/app.php';
-
-$kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
-
-exit($kernel->handle($input = new Symfony\Component\Console\Input\ArgvInput, new Symfony\Component\Console\Output\ConsoleOutput));
-=======
 
 use Illuminate\Foundation\Application;
 use Symfony\Component\Console\Input\ArgvInput;
@@ -31,4 +16,3 @@ $app = require_once __DIR__.'/bootstrap/app.php';
 $status = $app->handleCommand(new ArgvInput);
 
 exit($status);
->>>>>>> origin/master

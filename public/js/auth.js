@@ -1,6 +1,44 @@
 // Obtener API_URL desde meta tag (dinámico) o usar fallback
 const API_URL = document.querySelector('meta[name="api-url"]')?.content || 'http://localhost:8000/api';
 
+function setAuthFeedback(message, type = 'info') {
+    const feedback = document.getElementById('auth-feedback');
+
+    if (!feedback) {
+        if (message) {
+            alert(message);
+        }
+        return;
+    }
+
+    feedback.textContent = message;
+    feedback.classList.remove('form-feedback--error', 'form-feedback--success', 'hidden');
+
+    if (!message) {
+        feedback.classList.add('hidden');
+        return;
+    }
+
+    if (type === 'error') {
+        feedback.classList.add('form-feedback--error');
+    }
+
+    if (type === 'success') {
+        feedback.classList.add('form-feedback--success');
+    }
+}
+
+function setFormInvalid(formId, isInvalid) {
+    const form = document.getElementById(formId);
+    if (!form) {
+        return;
+    }
+
+    form.querySelectorAll('input').forEach((input) => {
+        input.setAttribute('aria-invalid', isInvalid ? 'true' : 'false');
+    });
+}
+
 // Manejar login
 async function handleLogin(event) {
     event.preventDefault();
@@ -9,6 +47,8 @@ async function handleLogin(event) {
     const password = document.getElementById('loginPassword').value;
 
     try {
+        setAuthFeedback('');
+        setFormInvalid('login-panel', false);
         const response = await fetch(`${API_URL}/auth/login`, {
             method: 'POST',
             headers: {
@@ -27,11 +67,11 @@ async function handleLogin(event) {
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
 
-        // Mostrar mensaje de éxito
-        alert('✅ ¡Bienvenido ' + data.user.nombre + '!');
+        setAuthFeedback(`Bienvenido, ${data.user.nombre}. Redirigiendo...`, 'success');
 
         // Redirigir según el rol
-        switch (data.user.role) {
+        setTimeout(() => {
+            switch (data.user.role) {
             case 'cliente':
                 window.location.href = '/cliente';
                 break;
@@ -43,10 +83,12 @@ async function handleLogin(event) {
                 break;
             default:
                 throw new Error('Rol no válido');
-        }
+            }
+        }, 400);
 
     } catch (error) {
-        alert('❌ Error: ' + error.message);
+        setFormInvalid('login-panel', true);
+        setAuthFeedback(`Error: ${error.message}`, 'error');
     }
 }
 
@@ -65,6 +107,8 @@ async function handleRegister(event) {
     }
 
     try {
+        setAuthFeedback('');
+        setFormInvalid('register-panel', false);
         const response = await fetch(`${API_URL}/auth/register`, {
             method: 'POST',
             headers: {
@@ -89,11 +133,14 @@ async function handleRegister(event) {
         localStorage.setItem('token', data.token);
         localStorage.setItem('user', JSON.stringify(data.user));
 
-        alert('✅ ¡Cuenta creada exitosamente!');
-        window.location.href = '/cliente';
+        setAuthFeedback('Cuenta creada correctamente. Redirigiendo...', 'success');
+        setTimeout(() => {
+            window.location.href = '/cliente';
+        }, 400);
 
     } catch (error) {
-        alert('❌ Error: ' + error.message);
+        setFormInvalid('register-panel', true);
+        setAuthFeedback(`Error: ${error.message}`, 'error');
     }
 }
 

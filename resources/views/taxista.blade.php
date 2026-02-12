@@ -12,7 +12,6 @@
     <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.ico') }}">
     
     <!-- Tailwind CSS (compilado) -->
-    <link href="{{ asset('css/tailwind.css?v=20260212') }}" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     <link href="{{ asset('css/styles.css?v=20260211') }}" rel="stylesheet">
     
@@ -29,9 +28,7 @@
     <!-- SIDEBAR - Panel taxista -->
     <aside class="sidebar">
         <div class="sidebar-logo">
-            <div class="w-10 h-10 bg-[#FFD700] rounded-lg flex items-center justify-center">
-                <i class="fas fa-taxi text-[#1A1A1A] text-xl"></i>
-            </div>
+            <img src="{{ asset('img/logo_sin_fondo.png') }}" alt="LanzaTaxi" class="w-10 h-10 object-contain">
             <span class="text-xl font-bold text-[#1A1A1A]">LanzaTaxi</span>
         </div>
         
@@ -317,7 +314,8 @@
                 <div class="card-header">
                     <h3 class="card-title">Historial de viajes realizados</h3>
                     <div class="flex gap-2">
-                        <select class="form-input !py-2 !w-auto">
+                        <label class="sr-only" for="filtroViajes">Filtrar viajes</label>
+                        <select id="filtroViajes" class="form-input !py-2 !w-auto">
                             <option>Hoy</option>
                             <option>Esta semana</option>
                             <option>Este mes</option>

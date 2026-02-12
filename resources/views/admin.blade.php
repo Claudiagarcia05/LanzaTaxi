@@ -12,7 +12,6 @@
     <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.ico') }}">
     
     <!-- Tailwind CSS (compilado) -->
-    <link href="{{ asset('css/tailwind.css?v=20260212') }}" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     <link href="{{ asset('css/styles.css?v=20260211') }}" rel="stylesheet">
     
@@ -32,9 +31,7 @@
     <!-- SIDEBAR - Admin -->
     <aside class="sidebar">
         <div class="sidebar-logo">
-            <div class="w-10 h-10 bg-[#FFD700] rounded-lg flex items-center justify-center">
-                <i class="fas fa-taxi text-[#1A1A1A] text-xl"></i>
-            </div>
+            <img src="{{ asset('img/logo_sin_fondo.png') }}" alt="LanzaTaxi" class="w-10 h-10 object-contain">
             <span class="text-xl font-bold text-[#1A1A1A]">LanzaTaxi</span>
         </div>
         
@@ -447,8 +444,9 @@
                     <h3 class="card-title">Gestión de Taxistas</h3>
                     <div class="flex gap-2">
                         <div class="input-icon">
+                            <label class="sr-only" for="buscarTaxista">Buscar taxista</label>
                             <i class="fas fa-search"></i>
-                            <input type="text" class="form-input !py-2 !px-8" placeholder="Buscar taxista...">
+                            <input type="text" id="buscarTaxista" class="form-input !py-2 !px-8" placeholder="Buscar taxista...">
                         </div>
                         <button class="btn btn-primary">
                             <i class="fas fa-plus"></i>

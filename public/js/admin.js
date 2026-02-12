@@ -1,9 +1,5 @@
 // Admin Dashboard JavaScript
-<<<<<<< HEAD
-const API_URL = 'http://localhost:3000/api';
-=======
 // API_URL ya está definido en auth.js
->>>>>>> origin/master
 let map, taxistasMarkers = [];
 let socket;
 
@@ -14,52 +10,6 @@ document.addEventListener('DOMContentLoaded', () => {
     cargarTarifas();
 });
 
-<<<<<<< HEAD
-// Mostrar sección
-function mostrarSeccion(seccion) {
-    document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
-    document.querySelectorAll('button[onclick*="mostrarSeccion"]').forEach(btn => btn.classList.remove('active'));
-    
-    const section = document.getElementById(seccion);
-    if (section) {
-        section.classList.remove('hidden');
-    }
-    
-    event.target.classList.add('active');
-    
-    const titles = {
-        'dashboard': 'Panel Administrativo',
-        'usuarios': 'Gestión de Usuarios',
-        'taxistas': 'Gestión de Taxistas',
-        'viajes': 'Gestión de Viajes',
-        'tarifas': 'Gestión de Tarifas'
-    };
-    document.getElementById('headerTitle').textContent = titles[seccion] || 'Panel';
-}
-
-function cerrarSesion() {
-    if (confirm('¿Está seguro de que desea cerrar sesión?')) {
-        window.location.href = 'index.html';
-    }
-}
-
-function abrirModalTaxista() {
-    LanzaTaxi.showNotification('Funcionalidad de creación de taxistas en desarrollo', 'info');
-}
-
-function cargarTaxistas() {
-    console.log('Cargando taxistas');
-}
-
-function cargarViajes() {
-    console.log('Cargando viajes');
-}
-
-function cargarTarifas() {
-    console.log('Cargas de tarifas');
-}
-    });
-=======
 function cerrarSesion() {
     if (confirm('¿Está seguro de que desea cerrar sesión?')) {
         localStorage.removeItem('token');
@@ -70,7 +20,6 @@ function cerrarSesion() {
 
 function abrirModalTaxista() {
     alert('Funcionalidad de creación de taxistas en desarrollo');
->>>>>>> origin/master
 }
 
 // Cargar dashboard

@@ -12,7 +12,6 @@
     <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.ico') }}">
     
     <!-- Tailwind CSS (compilado) -->
-    <link href="{{ asset('css/tailwind.css?v=20260212') }}" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     <link href="{{ asset('css/styles.css?v=20260211') }}" rel="stylesheet">
     
@@ -30,9 +29,7 @@
     <!-- SIDEBAR - Igual que en imagen 2.png -->
     <aside class="sidebar">
         <div class="sidebar-logo">
-            <div class="w-10 h-10 bg-[#FFD700] rounded-lg flex items-center justify-center">
-                <i class="fas fa-taxi text-[#1A1A1A] text-xl"></i>
-            </div>
+            <img src="{{ asset('img/logo_sin_fondo.png') }}" alt="LanzaTaxi" class="w-10 h-10 object-contain">
             <span class="text-xl font-bold text-[#1A1A1A]">LanzaTaxi</span>
         </div>
         
@@ -100,9 +97,7 @@
                 <div class="card">
                     <!-- Logo y título -->
                     <div class="flex items-center gap-3 mb-6">
-                        <div class="w-12 h-12 bg-[#FFD700] rounded-xl flex items-center justify-center">
-                            <i class="fas fa-taxi text-[#1A1A1A] text-2xl"></i>
-                        </div>
+                        <img src="{{ asset('img/logo_sin_fondo.png') }}" alt="LanzaTaxi" class="w-12 h-12 object-contain">
                         <div>
                             <h2 class="font-bold text-[#1A1A1A]">LanzaTaxi</h2>
                             <p class="text-xs text-gray-500">¿A dónde vamos?</p>
@@ -374,8 +369,9 @@
                     <h3 class="card-title">Todos tus viajes</h3>
                     <div class="flex gap-2">
                         <div class="input-icon">
+                            <label class="sr-only" for="buscarViaje">Buscar viaje</label>
                             <i class="fas fa-search"></i>
-                            <input type="text" class="form-input !py-2 !px-8 !w-64" placeholder="Buscar viaje...">
+                            <input type="text" id="buscarViaje" class="form-input !py-2 !px-8 !w-64" placeholder="Buscar viaje...">
                         </div>
                     </div>
                 </div>

@@ -2,11 +2,6 @@
 
 use Illuminate\Support\Facades\Route;
 
-<<<<<<< HEAD
-Route::get('/', function () {
-    return ['message' => 'LanzaTaxi API is running'];
-});
-=======
 // Redirecciones permanentes de URLs antiguas .html a nuevas rutas Laravel
 Route::permanentRedirect('/cliente.html', '/cliente');
 Route::permanentRedirect('/taxista.html', '/taxista');
@@ -33,4 +28,3 @@ Route::get('/admin', function () {
     return view('admin');
 })->name('admin');
 
->>>>>>> origin/master

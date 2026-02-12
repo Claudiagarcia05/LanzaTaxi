@@ -1,9 +1,5 @@
 // Cliente JavaScript - Gestión de solicitudes de taxis y viajes
-<<<<<<< HEAD
-const API_URL = 'http://localhost:3000/api';
-=======
 // API_URL ya está definido en auth.js
->>>>>>> origin/master
 let map, origenMarker, destinoMarker, routeLayer, taxistaMarker;
 let socket;
 let viajeActualId = null;
@@ -23,45 +19,20 @@ document.addEventListener('DOMContentLoaded', () => {
         userName.textContent = 'Pasajero Demo';
     }
     
-<<<<<<< HEAD
-    inicializarMapa();
-    // conectarWebSocket();
-    cargarViajes();
-    cargarPerfil();
-=======
     // No inicializar mapa aquí - se hace en el HTML inline
     // inicializarMapa();
     
     // conectarWebSocket();
     // cargarViajes();
     // cargarPerfil();
->>>>>>> origin/master
 });
 
 // Inicializar mapa con Leaflet
 function inicializarMapa() {
     try {
-<<<<<<< HEAD
-        // Centro de Lanzarote
-        map = L.map('map').setView([28.9636, -13.5477], 11);
-
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(map);
-
-        // Click en el mapa para establecer origen/destino
-        map.on('click', (e) => {
-            if (!origenCoords) {
-                establecerOrigen(e.latlng.lat, e.latlng.lng);
-            } else if (!destinoCoords) {
-                establecerDestino(e.latlng.lat, e.latlng.lng);
-            }
-        });
-=======
         // Los mapas se inicializan en el HTML inline
         // Esta función se mantiene para compatibilidad
         console.log('Mapas inicializados desde HTML inline');
->>>>>>> origin/master
     } catch (error) {
         console.error('Error inicializando mapa:', error);
     }

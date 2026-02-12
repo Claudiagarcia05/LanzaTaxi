@@ -1,75 +1,24 @@
 // Taxista Dashboard JavaScript
-<<<<<<< HEAD
-const API_URL = 'http://localhost:3000/api';
-let map, miMarker;
-=======
 // API_URL ya está definido en auth.js
 let map = null; // No se usa mapa principal en taxista, solo mapaCliente en HTML
 let miMarker;
->>>>>>> origin/master
 let socket;
+let taxistaInfo = null;
+let viajeActivo = null;
+let actualizacionUbicacionInterval = null;
 
 // Inicializar
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Panel de Taxista cargado');
-<<<<<<< HEAD
-    inicializarMapa();
-    cargarDatosTaxista();
-=======
     // No inicializar mapa - se hace desde HTML inline cuando hay cliente
     // inicializarMapa();
     // cargarDatosTaxista();
->>>>>>> origin/master
 });
 
 // Inicializar mapa - NO SE USA, se mantiene por compatibilidad
 function inicializarMapa() {
-<<<<<<< HEAD
-    try {
-        // Centro de Lanzarote
-        map = L.map('map').setView([28.9636, -13.5477], 11);
-
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(map);
-    } catch (error) {
-        console.error('Error inicializando mapa:', error);
-    }
-}
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
-
-    // Obtener ubicación actual
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition((position) => {
-            const lat = position.coords.latitude;
-            const lng = position.coords.longitude;
-            
-            map.setView([lat, lng], 13);
-            
-            miMarker = L.marker([lat, lng], {
-                icon: L.icon({
-                    iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-yellow.png',
-                    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
-                    iconSize: [25, 41],
-                    iconAnchor: [12, 41],
-                    popupAnchor: [1, -34],
-                    shadowSize: [41, 41]
-                })
-            }).addTo(map);
-            
-            miMarker.bindPopup('<strong>Tu ubicación</strong>').openPopup();
-            
-            // Enviar ubicación al servidor
-            enviarUbicacion(lat, lng);
-        });
-    }
-=======
     console.log('Mapa de taxista se inicializa desde HTML inline cuando hay cliente activo');
     // El mapa mapaCliente se inicializa en taxista.html con la función iniciarMapaCliente()
->>>>>>> origin/master
 }
 
 // Conectar WebSocket
